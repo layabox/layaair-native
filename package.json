@@ -1,0 +1,36 @@
+{
+  "name": "layanative2",
+  "version": "1.0.0",
+  "description": "laya native tools",
+  "main": "./out/index.js",
+  "bin": {
+    "layanative": "./out/main.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/layabox/layaair-native.git"
+  },
+  "keywords": [
+    "laya",
+    "LayaBox",
+    "LayaPlayer",
+    "LayaRuntime",
+    "LayaNative"
+  ],
+  "author": "lv",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/layabox/layaair-native/issues"
+  },
+  "homepage": "https://github.com/layabox/layaair-native#readme",
+  "dependencies": {
+    "layadcc": "^1.7.1",
+    "progress": "^2.0.0",
+    "request": "^2.60.0",
+    "xmldom": "^0.1.22",
+    "yargs": "^8.0.1"
+  }
+}
