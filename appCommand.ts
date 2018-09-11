@@ -19,9 +19,6 @@ export const PLATFORM_IOS_WKWEBVIEW: string = 'wkwebview';
 export const PLATFORM_ANDROID_ECLIPSE: string = 'android_eclipse';
 export const PLATFORM_ANDROID_STUDIO: string = 'android_studio';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
-export const DEMENSION_2D: string = '2D';
-export const DEMENSION_3D: string = '3D';
-export const WEBGLRENDERMODEJS: string = 'window.ConchRenderType=6;';
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
         return true;
@@ -184,7 +181,7 @@ export class AppCommand {
 
         return true;
     }
-    public excuteCreateApp(demension:string, folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
+    public excuteCreateApp(folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
 
         if (type > 0 && !fs.existsSync(folder)) {
             console.log('错误: 找不到目录 ' + folder);
@@ -213,13 +210,6 @@ export class AppCommand {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
-        
-        if (demension === '3D') {
-            if (!config.version) {
-                console.log("错误：支持3D需要版本至少为1.0");
-                return false;
-            }
-        }
 
         if (config.version) {
             console.log("SDK version " + config.version);
@@ -232,16 +222,6 @@ export class AppCommand {
 
         if (type === 2) {
             url = STAND_ALONE_URL;
-        }
-
-        if (demension === '3D') {
-            if (config.renderType) {
-                var configJsPath = path.join(appPath, config.renderType);
-                var str = this.read(configJsPath);
-                str += "\n";
-                str += WEBGLRENDERMODEJS;
-                fs.writeFileSync(configJsPath,str);
-            }
         }
         this.processUrl(config, type, url, appPath);
         this.processPackageName(config, package_name, appPath);

@@ -13,14 +13,6 @@ const path = require("path");
 exports.command = 'createapp';
 exports.describe = '创建app项目';
 exports.builder = {
-    demension: {
-        alias: 'd',
-        default: AppCommand.DEMENSION_2D,
-        choices: [AppCommand.DEMENSION_2D, AppCommand.DEMENSION_3D],
-        required: false,
-        requiresArg: true,
-        description: '项目类型2D还是3D'
-    },
     folder: {
         alias: 'f',
         required: false,
@@ -168,13 +160,13 @@ exports.handler = function (argv) {
                 }
             }
             if (argv.platform === AppCommand.PLATFORM_ALL) {
-                cmd.excuteCreateApp(argv.demension, folder, sdk, AppCommand.PLATFORM_IOS, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
-                cmd.excuteCreateApp(argv.demension, folder, sdk, AppCommand.PLATFORM_IOS_WKWEBVIEW, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
-                cmd.excuteCreateApp(argv.demension, folder, sdk, AppCommand.PLATFORM_ANDROID_ECLIPSE, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
-                cmd.excuteCreateApp(argv.demension, folder, sdk, AppCommand.PLATFORM_ANDROID_STUDIO, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
+                cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_IOS, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
+                cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_IOS_WKWEBVIEW, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
+                cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_ANDROID_ECLIPSE, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
+                cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_ANDROID_STUDIO, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
             }
             else {
-                cmd.excuteCreateApp(argv.demension, folder, sdk, argv.platform, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
+                cmd.excuteCreateApp(folder, sdk, argv.platform, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
             }
             console.log('请继续......');
         }

@@ -28,9 +28,6 @@ exports.PLATFORM_IOS_WKWEBVIEW = 'wkwebview';
 exports.PLATFORM_ANDROID_ECLIPSE = 'android_eclipse';
 exports.PLATFORM_ANDROID_STUDIO = 'android_studio';
 exports.H5_PROJECT_CONFIG_FILE = 'config.json';
-exports.DEMENSION_2D = '2D';
-exports.DEMENSION_3D = '3D';
-exports.WEBGLRENDERMODEJS = 'window.ConchRenderType=6;';
 function mkdirsSync(dirname, mode) {
     if (fs.existsSync(dirname)) {
         return true;
@@ -176,7 +173,7 @@ class AppCommand {
         mkdirsSync(dir);
         return true;
     }
-    excuteCreateApp(demension, folder, sdk, platform, type, url, name, app_name, package_name, outputPath) {
+    excuteCreateApp(folder, sdk, platform, type, url, name, app_name, package_name, outputPath) {
         if (type > 0 && !fs.existsSync(folder)) {
             console.log('错误: 找不到目录 ' + folder);
             return false;
@@ -200,12 +197,6 @@ class AppCommand {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
-        if (demension === '3D') {
-            if (!config.version) {
-                console.log("错误：支持3D需要版本至少为1.0");
-                return false;
-            }
-        }
         if (config.version) {
             console.log("SDK version " + config.version);
         }
@@ -214,15 +205,6 @@ class AppCommand {
         copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         if (type === 2) {
             url = exports.STAND_ALONE_URL;
-        }
-        if (demension === '3D') {
-            if (config.renderType) {
-                var configJsPath = path.join(appPath, config.renderType);
-                var str = this.read(configJsPath);
-                str += "\n";
-                str += exports.WEBGLRENDERMODEJS;
-                fs.writeFileSync(configJsPath, str);
-            }
         }
         this.processUrl(config, type, url, appPath);
         this.processPackageName(config, package_name, appPath);
