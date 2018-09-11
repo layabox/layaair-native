@@ -360,11 +360,11 @@ class AppCommand {
         let dataPath;
         if (process.platform === 'darwin') {
             let home = process.env.HOME || ("/Users/" + (process.env.NAME || process.env.LOGNAME));
-            dataPath = home + "/Library/Application Support/Laya/NativeTools/template/";
+            dataPath = home + "/Library/Application Support/Laya/NativeTools2/template/";
         }
         else {
             var appdata = process.env.AppData || process.env.USERPROFILE + "/AppData/Roaming/";
-            dataPath = appdata + "/Laya/layanative/template/";
+            dataPath = appdata + "/Laya/layanative2/template/";
         }
         if (!fs.existsSync(dataPath)) {
             console.log('REPLACE: mkdir11 ' + dataPath);
