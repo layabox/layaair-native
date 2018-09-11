@@ -159,6 +159,10 @@ exports.handler = function (argv) {
                     return;
                 }
             }
+            if (argv.url.indexOf('.html') != -1) {
+                console.log('错误：URL不支持.html文件，请使用.json文件或.js文件');
+                return;
+            }
             if (argv.platform === AppCommand.PLATFORM_ALL) {
                 cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_IOS, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
                 cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_IOS_WKWEBVIEW, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
