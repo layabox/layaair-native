@@ -38,6 +38,11 @@ exports.handler = function (argv) {
             cmd.excuteRemoveRes(appPath);
         }
 
+        appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_IOS_WKWEBVIEW);
+        if (fs.existsSync(appPath)) {
+            cmd.excuteRemoveRes(appPath);
+        }
+
         appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_ANDROID_ECLIPSE);
         if (fs.existsSync(appPath)) {
             cmd.excuteRemoveRes(appPath);

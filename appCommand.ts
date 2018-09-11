@@ -13,12 +13,15 @@ export const DEFAULT_APP_NAME: string = 'LayaBox';
 export const DEFAULT_PACKAGE_NAME: string = 'com.layabox.game';
 export const DEFAULT_TYPE: number = 0;
 export const NATIVE_JSON_FILE_NAME: string = 'native.json';
-export const PLATFORM_ANDROID_ALL: string = 'all';
+export const PLATFORM_ALL: string = 'all';
 export const PLATFORM_IOS: string = 'ios';
+export const PLATFORM_IOS_WKWEBVIEW: string = 'wkwebview';
 export const PLATFORM_ANDROID_ECLIPSE: string = 'android_eclipse';
 export const PLATFORM_ANDROID_STUDIO: string = 'android_studio';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
-
+export const DEMENSION_2D: string = '2D';
+export const DEMENSION_3D: string = '3D';
+export const WEBGLRENDERMODEJS: string = 'window.ConchRenderType=6;';
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
         return true;
@@ -181,7 +184,7 @@ export class AppCommand {
 
         return true;
     }
-    public excuteCreateApp(folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
+    public excuteCreateApp(demension:string, folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
 
         if (type > 0 && !fs.existsSync(folder)) {
             console.log('错误: 找不到目录 ' + folder);
@@ -189,9 +192,11 @@ export class AppCommand {
         }
 
         var me = this;
-        let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
 
-        let configPath = path.isAbsolute(sdk) ? path.join(path.join(sdk, platform), "config.json") : path.join(path.join(process.cwd(), sdk, platform), "config.json");
+        let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
+        let absCfgPath = path.join(path.join(sdk, platform), "config.json");
+        let relCfgPath = path.join(path.join(process.cwd(), sdk, platform), "config.json");
+        let configPath = path.isAbsolute(sdk) ?  absCfgPath : relCfgPath;
         if (!fs.existsSync(configPath)) {
             console.log('错误: 找不到文件 ' + configPath + '。不是有效的SDK目录');
             return false;
@@ -208,15 +213,36 @@ export class AppCommand {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
+        
+        if (demension === '3D') {
+            if (!config.version) {
+                console.log("错误：支持3D需要版本至少为1.0");
+                return false;
+            }
+        }
 
-        console.log('REPLACE copydir1 ',path.join(sdk, platform), path.dirname(appPath));
-        copyFolderRecursiveSync(path.join(sdk, platform), path.dirname(appPath));
+        if (config.version) {
+            console.log("SDK version " + config.version);
+        }
+        
+        let srcPath = path.join(sdk, platform);
+        console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
+        copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         //fs_extra.copySync(path.join(sdk, platform), appPath);
 
         if (type === 2) {
             url = STAND_ALONE_URL;
         }
 
+        if (demension === '3D') {
+            if (config.renderType) {
+                var configJsPath = path.join(appPath, config.renderType);
+                var str = this.read(configJsPath);
+                str += "\n";
+                str += WEBGLRENDERMODEJS;
+                fs.writeFileSync(configJsPath,str);
+            }
+        }
         this.processUrl(config, type, url, appPath);
         this.processPackageName(config, package_name, appPath);
         if (type > 0) {
@@ -322,7 +348,7 @@ export class AppCommand {
         let xml = this.read(file);
         let doc = new xmldom.DOMParser().parseFromString(xml);
 
-        if (platform === PLATFORM_IOS) {
+        if (platform === PLATFORM_IOS || platform === PLATFORM_IOS_WKWEBVIEW) {
 
             let dictNode = doc.getElementsByTagName('dict')[0];
             let keyNode = doc.createElement("key");
