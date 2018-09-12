@@ -470,3 +470,15 @@ function unzipAsync(unzipurl, filepath, cb) {
     }
 }
 exports.unzipAsync = unzipAsync;
+function checkURL(url, platform) {
+    if (url.indexOf('.html') !== -1 && platform !== exports.PLATFORM_IOS_WKWEBVIEW) {
+        console.log('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
+        return false;
+    }
+    if (url.indexOf('.html') === -1 && platform === exports.PLATFORM_IOS_WKWEBVIEW) {
+        console.log('错误：wkwebview项目URL只支持.html文件');
+        return false;
+    }
+    return true;
+}
+exports.checkURL = checkURL;

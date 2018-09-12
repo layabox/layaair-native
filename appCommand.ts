@@ -3,7 +3,7 @@ import * as path from 'path';
 import gen_dcc = require('layadcc');
 import * as request from 'request';
 import child_process = require('child_process');
-import * as xmldom from 'xmldom';
+import  xmldom = require('xmldom');
 import * as ProgressBar from 'progress';
 
 export const STAND_ALONE_URL: string = 'http://stand.alone.version/index.html';
@@ -507,4 +507,16 @@ export function unzipAsync(unzipurl: string, filepath: string, cb:(error:Error, 
         var cmd = "\"" + unzipexepath + "\" -oq \"" + unzipurl + "\" -d \"" + filepath + "\"";
         child_process.exec(cmd,{maxBuffer:1024*1024},cb);
     }
+}
+
+export function checkURL(url: string, platform: string):boolean {
+    if (url.indexOf('.html') !== -1 && platform !== PLATFORM_IOS_WKWEBVIEW) {
+        console.log('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
+        return false;
+    }
+    if (url.indexOf('.html') === -1 && platform === PLATFORM_IOS_WKWEBVIEW) {
+        console.log('错误：wkwebview项目URL只支持.html文件');
+        return false;
+    }
+    return true;
 }
