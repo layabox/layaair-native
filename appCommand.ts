@@ -510,11 +510,11 @@ export function unzipAsync(unzipurl: string, filepath: string, cb:(error:Error, 
 }
 
 export function checkURL(url: string, platform: string):boolean {
-    if (url.indexOf('.html') !== -1 && platform !== PLATFORM_IOS_WKWEBVIEW) {
+    if (url && url.indexOf('.html') !== -1 && platform !== PLATFORM_IOS_WKWEBVIEW) {
         console.log('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
         return false;
     }
-    if (url.indexOf('.html') === -1 && platform === PLATFORM_IOS_WKWEBVIEW) {
+    if (url && url.indexOf('.html') === -1 && platform === PLATFORM_IOS_WKWEBVIEW) {
         console.log('错误：wkwebview项目URL只支持.html文件');
         return false;
     }
