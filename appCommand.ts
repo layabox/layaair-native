@@ -6,7 +6,7 @@ import child_process = require('child_process');
 import  xmldom = require('xmldom');
 import * as ProgressBar from 'progress';
 
-export const STAND_ALONE_URL: string = 'http://stand.alone.version/index.html';
+export const STAND_ALONE_URL: string = 'http://stand.alone.version/runtime.json';
 export const VERSION_CONFIG_URL: string = 'http://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
 export const DEFAULT_NAME: string = 'LayaBox';
 export const DEFAULT_APP_NAME: string = 'LayaBox';
