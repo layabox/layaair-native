@@ -50,9 +50,6 @@ exports.handler = function (argv) {
             console.log('错误: 资源目录为空，刷新失败');
             return;
         }
-        if (!AppCommand.checkURL(argv.url, argv.platform)) {
-            return;
-        }
         let folder = nativeJSON.h5;
         if (argv.platform === AppCommand.PLATFORM_ALL) {
             let appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_IOS);

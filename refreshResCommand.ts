@@ -61,10 +61,6 @@ exports.handler = function (argv) {
       return;
     }
 
-    if (!AppCommand.checkURL(argv.url, argv.platform)) {
-      return;
-    }
-
     let folder = nativeJSON.h5;
 
     if (argv.platform === AppCommand.PLATFORM_ALL) {

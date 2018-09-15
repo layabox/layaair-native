@@ -170,7 +170,7 @@ export var handler = async function (argv) {
       }
     }
 
-    if (!AppCommand.checkURL(argv.url, argv.platform)) {
+    if (argv.type !== 2 && !AppCommand.checkURL(argv.url, argv.platform)) {
       return;
     }
     
