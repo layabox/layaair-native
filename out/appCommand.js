@@ -197,9 +197,6 @@ class AppCommand {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
-        if (config.version) {
-            console.log("SDK version " + config.version);
-        }
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
         copyFolderRecursiveSync(srcPath, path.dirname(appPath));

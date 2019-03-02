@@ -211,9 +211,9 @@ export class AppCommand {
             return false;
         }
 
-        if (config.version) {
+        /*if (config.version) {
             console.log("SDK version " + config.version);
-        }
+        }*/
         
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
