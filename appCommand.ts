@@ -184,7 +184,7 @@ export class AppCommand {
     }
     public excuteCreateApp(folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
 
-		if (!checkURL(url, platform)) {
+		if (type !== 2 && !checkURL(url, platform)) {
 			return false;
 		}
     

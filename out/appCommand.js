@@ -177,7 +177,7 @@ class AppCommand {
         return true;
     }
     excuteCreateApp(folder, sdk, platform, type, url, name, app_name, package_name, outputPath) {
-        if (!checkURL(url, platform)) {
+        if (type !== 2 && !checkURL(url, platform)) {
             return false;
         }
         if (type > 0 && !fs.existsSync(folder)) {
