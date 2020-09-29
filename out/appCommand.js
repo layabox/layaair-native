@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_ANDROID_ECLIPSE = exports.PLATFORM_IOS_WKWEBVIEW = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.WKWEBVIEW_STAND_ALONE_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
 const fs = require("fs");
 const path = require("path");
 const gen_dcc = require("layadcc");
@@ -15,7 +17,8 @@ const request = require("request");
 const child_process = require("child_process");
 const xmldom = require("xmldom");
 const ProgressBar = require("progress");
-exports.STAND_ALONE_URL = 'http://stand.alone.version/index.js';
+exports.NATIVE_STAND_ALONE_URL = 'http://stand.alone.version/index.js';
+exports.WKWEBVIEW_STAND_ALONE_URL = 'http://stand.alone.version/index.html';
 exports.VERSION_CONFIG_URL = 'https://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
 exports.DEFAULT_NAME = 'LayaBox';
 exports.DEFAULT_APP_NAME = 'LayaBox';
@@ -119,11 +122,11 @@ class AppCommand {
         }
         if (fs.existsSync(path.join(appPath, config["res"]["path"], 'stand.alone.version'))) {
             if (url === '' || url === undefined) {
-                url = exports.STAND_ALONE_URL;
+                url = config["platform"] ? getStandAloneUrl(config["platform"]) : exports.NATIVE_STAND_ALONE_URL;
                 console.log('您正在打包单机版...');
             }
             else {
-                if (url === exports.STAND_ALONE_URL) {
+                if (isStandAloneUrl(url)) {
                     console.log('您正在打包单机版...');
                 }
                 else {
@@ -137,7 +140,7 @@ class AppCommand {
                 return false;
             }
             else {
-                if (url === exports.STAND_ALONE_URL) {
+                if (isStandAloneUrl(url)) {
                     console.log('您正在从网络版地址切换到单机版,请注意修改相关代码...');
                 }
                 else {
@@ -201,7 +204,7 @@ class AppCommand {
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
         copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         if (type === 2) {
-            url = exports.STAND_ALONE_URL;
+            url = getStandAloneUrl(platform);
         }
         this.processUrl(config, type, url, appPath);
         this.processPackageName(config, package_name, appPath);
@@ -479,3 +482,19 @@ function checkURL(url, platform) {
     return true;
 }
 exports.checkURL = checkURL;
+function getStandAloneUrl(platform) {
+    if (platform === exports.PLATFORM_IOS_WKWEBVIEW) {
+        return exports.WKWEBVIEW_STAND_ALONE_URL;
+    }
+    else {
+        return exports.NATIVE_STAND_ALONE_URL;
+    }
+}
+exports.getStandAloneUrl = getStandAloneUrl;
+function isStandAloneUrl(url) {
+    if (url === exports.NATIVE_STAND_ALONE_URL || url === exports.WKWEBVIEW_STAND_ALONE_URL) {
+        return true;
+    }
+    return false;
+}
+exports.isStandAloneUrl = isStandAloneUrl;
