@@ -6,7 +6,8 @@ import child_process = require('child_process');
 import  xmldom = require('xmldom');
 import * as ProgressBar from 'progress';
 
-export const STAND_ALONE_URL: string = 'http://stand.alone.version/index.js';
+export const NATIVE_STAND_ALONE_URL: string = 'http://stand.alone.version/index.js';
+export const WKWEBVIEW_STAND_ALONE_URL: string = 'http://stand.alone.version/index.html';
 export const VERSION_CONFIG_URL: string = 'https://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
 export const DEFAULT_NAME: string = 'LayaBox';
 export const DEFAULT_APP_NAME: string = 'LayaBox';
@@ -121,11 +122,11 @@ export class AppCommand {
 
         if (fs.existsSync(path.join(appPath, config["res"]["path"], 'stand.alone.version'))) {
             if (url === '' || url === undefined) {
-                url = STAND_ALONE_URL;
+                url = config["platform"] ? getStandAloneUrl(config["platform"]) : NATIVE_STAND_ALONE_URL;
                 console.log('您正在打包单机版...');
             }
             else {
-                if (url === STAND_ALONE_URL) {
+                if (isStandAloneUrl(url)) {
                     console.log('您正在打包单机版...');
                 }
                 else {
@@ -139,7 +140,7 @@ export class AppCommand {
                 return false;
             }
             else {
-                if (url === STAND_ALONE_URL) {
+                if (isStandAloneUrl(url)) {
                     console.log('您正在从网络版地址切换到单机版,请注意修改相关代码...');
                 }
                 else {
@@ -221,7 +222,7 @@ export class AppCommand {
         //fs_extra.copySync(path.join(sdk, platform), appPath);
 
         if (type === 2) {
-            url = STAND_ALONE_URL;
+            url = getStandAloneUrl(platform);
         }
         this.processUrl(config, type, url, appPath);
         this.processPackageName(config, package_name, appPath);
@@ -519,4 +520,18 @@ export function checkURL(url: string, platform: string):boolean {
         return false;
     }
     return true;
+}
+export function getStandAloneUrl(platform: string): string {
+    if (platform === PLATFORM_IOS_WKWEBVIEW) {
+        return WKWEBVIEW_STAND_ALONE_URL;
+    }
+    else {
+        return NATIVE_STAND_ALONE_URL;
+    }
+}
+export function isStandAloneUrl(url: string): boolean {
+    if (url === NATIVE_STAND_ALONE_URL || url === WKWEBVIEW_STAND_ALONE_URL) {
+        return true;
+    }
+    return false;
 }
