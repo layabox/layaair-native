@@ -164,7 +164,7 @@ export var handler = async function (argv) {
         console.log('错误：缺少参数--url');
         return;
       }
-      if (argv.url === AppCommand.STAND_ALONE_URL) {
+      if (AppCommand.isStandAloneUrl(argv.url)) {
         console.log('错误：请提供有效参数--url');
         return;
       }
