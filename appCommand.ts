@@ -184,6 +184,10 @@ export class AppCommand {
     }
     public excuteCreateApp(folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
 
+		if (!checkURL(url, platform)) {
+			return false;
+		}
+    
         if (type > 0 && !fs.existsSync(folder)) {
             console.log('错误: 找不到目录 ' + folder);
             return false;
