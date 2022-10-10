@@ -10,7 +10,7 @@ exports.builder = {
   {
     alias: 'p',
     default: AppCommand.PLATFORM_ALL,
-    choices: [AppCommand.PLATFORM_ALL, , AppCommand.PLATFORM_IOS_WKWEBVIEW, AppCommand.PLATFORM_IOS, AppCommand.PLATFORM_ANDROID_ECLIPSE, AppCommand.PLATFORM_ANDROID_STUDIO],
+    choices: [AppCommand.PLATFORM_ALL, AppCommand.PLATFORM_IOS, AppCommand.PLATFORM_ANDROID_STUDIO],
     required: false,
     requiresArg: true,
     description: '项目平台'
@@ -66,9 +66,6 @@ exports.handler = function (argv) {
     if (argv.platform === AppCommand.PLATFORM_ALL) {
 
       let appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_IOS);
-      cmd.excuteRefreshRes(folder, argv.url, appPath);
-
-      appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_ANDROID_ECLIPSE);
       cmd.excuteRefreshRes(folder, argv.url, appPath);
 
       appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_ANDROID_STUDIO);

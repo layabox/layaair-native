@@ -7,8 +7,7 @@ import  xmldom = require('xmldom');
 import * as ProgressBar from 'progress';
 
 export const NATIVE_STAND_ALONE_URL: string = 'http://stand.alone.version/index.js';
-export const WKWEBVIEW_STAND_ALONE_URL: string = 'http://stand.alone.version/index.html';
-export const VERSION_CONFIG_URL: string = 'https://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
+export const VERSION_CONFIG_URL: string = 'https://www.layabox.com/layanative3.0/layanativeRes/versionconfig.json';
 export const DEFAULT_NAME: string = 'LayaBox';
 export const DEFAULT_APP_NAME: string = 'LayaBox';
 export const DEFAULT_PACKAGE_NAME: string = 'com.layabox.game';
@@ -16,8 +15,6 @@ export const DEFAULT_TYPE: number = 0;
 export const NATIVE_JSON_FILE_NAME: string = 'native.json';
 export const PLATFORM_ALL: string = 'all';
 export const PLATFORM_IOS: string = 'ios';
-export const PLATFORM_IOS_WKWEBVIEW: string = 'wkwebview';
-export const PLATFORM_ANDROID_ECLIPSE: string = 'android_eclipse';
 export const PLATFORM_ANDROID_STUDIO: string = 'android_studio';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
 function mkdirsSync(dirname:string, mode?:number):boolean{
@@ -333,7 +330,7 @@ export class AppCommand {
         let xml = this.read(file);
         let doc = new xmldom.DOMParser().parseFromString(xml);
 
-        if (platform === PLATFORM_IOS || platform === PLATFORM_IOS_WKWEBVIEW) {
+        if (platform === PLATFORM_IOS) {
 
             let dictNode = doc.getElementsByTagName('dict')[0];
             let keyNode = doc.createElement("key");
@@ -410,7 +407,7 @@ export class AppCommand {
         }
         else {
             var appdata = process.env.AppData || process.env.USERPROFILE + "/AppData/Roaming/";
-            dataPath = appdata + "/Laya/layanative2/template/";
+            dataPath = appdata + "/Laya/layanative3/template/";
         }
         if( !fs.existsSync(dataPath)){
         //if (!fs_extra.existsSync(dataPath)) {
@@ -429,6 +426,9 @@ export class AppCommand {
     static isSDKExists(version: string): boolean {
         return fs.existsSync(path.join(AppCommand.getAppDataPath(), version));
     }
+    static getLocalJSONConfigPath(): string {
+        return path.join(AppCommand.getAppDataPath(), "versionconfig.json");
+    }
     private read(path: string): string {
         try {
             var text = fs.readFileSync(path, "utf-8");
@@ -445,11 +445,21 @@ export async function getServerJSONConfig(url?: string): Promise<any> {
     return new Promise<any>(function (res, rej) {
         request(url, function (error, response, body) {
             if (!error && response.statusCode == 200) {
+                fs.writeFileSync(AppCommand.getLocalJSONConfigPath(), body);
                 res(JSON.parse(body));
             }
             else {
                 console.log('错误: 网络连接异常，下载 ' + url + '失败');
-                res(null);
+  
+                if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) { 
+                    console.log('读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功');
+                    let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(),'utf8');
+                    res(JSON.parse(config));
+                }
+                else {
+                    console.log('读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败');
+                    res(null);
+                }
             }
         })
     });
@@ -515,26 +525,17 @@ export function unzipAsync(unzipurl: string, filepath: string, cb:(error:Error, 
 }
 
 export function checkURL(url: string, platform: string):boolean {
-    if (url && url.indexOf('.html') !== -1 && platform !== PLATFORM_IOS_WKWEBVIEW) {
+    if (url && url.indexOf('.html') !== -1) {
         console.log('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
-        return false;
-    }
-    if (url && url.indexOf('.html') === -1 && platform === PLATFORM_IOS_WKWEBVIEW) {
-        console.log('错误：wkwebview项目URL只支持.html文件');
         return false;
     }
     return true;
 }
 export function getStandAloneUrl(platform: string): string {
-    if (platform === PLATFORM_IOS_WKWEBVIEW) {
-        return WKWEBVIEW_STAND_ALONE_URL;
-    }
-    else {
-        return NATIVE_STAND_ALONE_URL;
-    }
+    return NATIVE_STAND_ALONE_URL;
 }
 export function isStandAloneUrl(url: string): boolean {
-    if (url === NATIVE_STAND_ALONE_URL || url === WKWEBVIEW_STAND_ALONE_URL) {
+    if (url === NATIVE_STAND_ALONE_URL) {
         return true;
     }
     return false;
