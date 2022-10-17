@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_ANDROID_ECLIPSE = exports.PLATFORM_IOS_WKWEBVIEW = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.WKWEBVIEW_STAND_ALONE_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
+exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.CODE_DIR_NAME = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
 const fs = require("fs");
 const path = require("path");
 const gen_dcc = require("layadcc");
@@ -18,19 +18,17 @@ const child_process = require("child_process");
 const xmldom = require("xmldom");
 const ProgressBar = require("progress");
 exports.NATIVE_STAND_ALONE_URL = 'http://stand.alone.version/index.js';
-exports.WKWEBVIEW_STAND_ALONE_URL = 'http://stand.alone.version/index.html';
-exports.VERSION_CONFIG_URL = 'https://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
+exports.VERSION_CONFIG_URL = 'https://www.layabox.com/layanative3.0/layanativeRes/versionconfig.json';
 exports.DEFAULT_NAME = 'LayaBox';
 exports.DEFAULT_APP_NAME = 'LayaBox';
-exports.DEFAULT_PACKAGE_NAME = 'com.layabox.game';
+exports.DEFAULT_PACKAGE_NAME = 'com.layabox.conch';
 exports.DEFAULT_TYPE = 0;
 exports.NATIVE_JSON_FILE_NAME = 'native.json';
 exports.PLATFORM_ALL = 'all';
 exports.PLATFORM_IOS = 'ios';
-exports.PLATFORM_IOS_WKWEBVIEW = 'wkwebview';
-exports.PLATFORM_ANDROID_ECLIPSE = 'android_eclipse';
-exports.PLATFORM_ANDROID_STUDIO = 'android_studio';
+exports.PLATFORM_ANDROID_STUDIO = 'android';
 exports.H5_PROJECT_CONFIG_FILE = 'config.json';
+exports.CODE_DIR_NAME = 'Conch';
 function mkdirsSync(dirname, mode) {
     if (fs.existsSync(dirname)) {
         return true;
@@ -185,6 +183,7 @@ class AppCommand {
             return false;
         }
         var me = this;
+        let srcCodePath = path.join(sdk, exports.CODE_DIR_NAME);
         let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
         let absCfgPath = path.join(path.join(sdk, platform), "config.json");
         let relCfgPath = path.join(path.join(process.cwd(), sdk, platform), "config.json");
@@ -202,6 +201,13 @@ class AppCommand {
         if (fs.existsSync(appPath)) {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
+        }
+        let destCodePath = path.join(appPath, exports.CODE_DIR_NAME);
+        if (fs.existsSync(destCodePath)) {
+        }
+        else {
+            console.log('copydir ', srcCodePath, path.dirname(appPath));
+            copyFolderRecursiveSync(srcCodePath, path.dirname(appPath));
         }
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
@@ -299,7 +305,7 @@ class AppCommand {
         let file = path.join(appPath, config["template"]["display"]);
         let xml = this.read(file);
         let doc = new xmldom.DOMParser().parseFromString(xml);
-        if (platform === exports.PLATFORM_IOS || platform === exports.PLATFORM_IOS_WKWEBVIEW) {
+        if (platform === exports.PLATFORM_IOS) {
             let dictNode = doc.getElementsByTagName('dict')[0];
             let keyNode = doc.createElement("key");
             let keyTextNode = doc.createTextNode("CFBundleDisplayName");
@@ -367,7 +373,7 @@ class AppCommand {
         }
         else {
             var appdata = process.env.AppData || process.env.USERPROFILE + "/AppData/Roaming/";
-            dataPath = appdata + "/Laya/layanative2/template/";
+            dataPath = appdata + "/Laya/layanative3/template/";
         }
         if (!fs.existsSync(dataPath)) {
             console.log('REPLACE: mkdir11 ' + dataPath);
@@ -383,6 +389,9 @@ class AppCommand {
     }
     static isSDKExists(version) {
         return fs.existsSync(path.join(AppCommand.getAppDataPath(), version));
+    }
+    static getLocalJSONConfigPath() {
+        return path.join(AppCommand.getAppDataPath(), "versionconfig.json");
     }
     read(path) {
         try {
@@ -403,11 +412,20 @@ function getServerJSONConfig(url) {
         return new Promise(function (res, rej) {
             request(url, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
+                    fs.writeFileSync(AppCommand.getLocalJSONConfigPath(), body);
                     res(JSON.parse(body));
                 }
                 else {
                     console.log('错误: 网络连接异常，下载 ' + url + '失败');
-                    res(null);
+                    if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) {
+                        console.log('读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功');
+                        let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(), 'utf8');
+                        res(JSON.parse(config));
+                    }
+                    else {
+                        console.log('读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败');
+                        res(null);
+                    }
                 }
             });
         });
@@ -474,28 +492,19 @@ function unzipAsync(unzipurl, filepath, cb) {
 }
 exports.unzipAsync = unzipAsync;
 function checkURL(url, platform) {
-    if (url && url.indexOf('.html') !== -1 && platform !== exports.PLATFORM_IOS_WKWEBVIEW) {
+    if (url && url.indexOf('.html') !== -1) {
         console.log('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
-        return false;
-    }
-    if (url && url.indexOf('.html') === -1 && platform === exports.PLATFORM_IOS_WKWEBVIEW) {
-        console.log('错误：wkwebview项目URL只支持.html文件');
         return false;
     }
     return true;
 }
 exports.checkURL = checkURL;
 function getStandAloneUrl(platform) {
-    if (platform === exports.PLATFORM_IOS_WKWEBVIEW) {
-        return exports.WKWEBVIEW_STAND_ALONE_URL;
-    }
-    else {
-        return exports.NATIVE_STAND_ALONE_URL;
-    }
+    return exports.NATIVE_STAND_ALONE_URL;
 }
 exports.getStandAloneUrl = getStandAloneUrl;
 function isStandAloneUrl(url) {
-    if (url === exports.NATIVE_STAND_ALONE_URL || url === exports.WKWEBVIEW_STAND_ALONE_URL) {
+    if (url === exports.NATIVE_STAND_ALONE_URL) {
         return true;
     }
     return false;

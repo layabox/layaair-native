@@ -10,13 +10,14 @@ export const NATIVE_STAND_ALONE_URL: string = 'http://stand.alone.version/index.
 export const VERSION_CONFIG_URL: string = 'https://www.layabox.com/layanative3.0/layanativeRes/versionconfig.json';
 export const DEFAULT_NAME: string = 'LayaBox';
 export const DEFAULT_APP_NAME: string = 'LayaBox';
-export const DEFAULT_PACKAGE_NAME: string = 'com.layabox.game';
+export const DEFAULT_PACKAGE_NAME: string = 'com.layabox.conch';
 export const DEFAULT_TYPE: number = 0;
 export const NATIVE_JSON_FILE_NAME: string = 'native.json';
 export const PLATFORM_ALL: string = 'all';
 export const PLATFORM_IOS: string = 'ios';
-export const PLATFORM_ANDROID_STUDIO: string = 'android_studio';
+export const PLATFORM_ANDROID_STUDIO: string = 'android';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
+export const CODE_DIR_NAME: string = 'Conch';
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
         return true;
@@ -191,6 +192,7 @@ export class AppCommand {
         }
 
         var me = this;
+        let srcCodePath = path.join(sdk, CODE_DIR_NAME);
 
         let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
         let absCfgPath = path.join(path.join(sdk, platform), "config.json");
@@ -216,6 +218,13 @@ export class AppCommand {
         /*if (config.version) {
             console.log("SDK version " + config.version);
         }*/
+        let destCodePath = path.join(appPath, CODE_DIR_NAME);
+        if (fs.existsSync(destCodePath)) {
+        }
+        else {
+            console.log('copydir ', srcCodePath, path.dirname(appPath));
+            copyFolderRecursiveSync(srcCodePath, path.dirname(appPath));
+        }
         
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));

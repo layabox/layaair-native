@@ -17,7 +17,7 @@ module.exports = {
             package_name: package_name,
             path: path
         };
-        return createAppCommand_1.handler(args);
+        return (0, createAppCommand_1.handler)(args);
     },
     refreshres: (platform, path, url) => {
         var args = {
@@ -25,13 +25,13 @@ module.exports = {
             path: path,
             url: url
         };
-        createAppCommand_1.handler(args);
+        (0, createAppCommand_1.handler)(args);
     },
     removeres: (path) => {
         var args = {
             path: path
         };
-        createAppCommand_1.handler(args);
+        (0, createAppCommand_1.handler)(args);
     },
     listversions: AppCommand.getServerJSONConfig,
     downloadsdk: (ver) => {
