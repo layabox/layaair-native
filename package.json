@@ -1,10 +1,10 @@
 {
-  "name": "layanative2",
-  "version": "1.0.12",
-  "description": "laya native tools",
+  "name": "layanative3",
+  "version": "1.0.0",
+  "description": "laya native tools 3",
   "main": "./out/index.js",
   "bin": {
-    "layanative2": "./out/main.js"
+    "layanative3": "./out/main.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
