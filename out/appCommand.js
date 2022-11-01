@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.CODE_DIR_NAME = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
+exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.THIRD_PARTY_DIR_NAME = exports.CODE_DIR_NAME = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
 const fs = require("fs");
 const path = require("path");
 const gen_dcc = require("layadcc");
@@ -29,6 +29,7 @@ exports.PLATFORM_IOS = 'ios';
 exports.PLATFORM_ANDROID_STUDIO = 'android';
 exports.H5_PROJECT_CONFIG_FILE = 'config.json';
 exports.CODE_DIR_NAME = 'Conch';
+exports.THIRD_PARTY_DIR_NAME = 'ThirdParty';
 function mkdirsSync(dirname, mode) {
     if (fs.existsSync(dirname)) {
         return true;
@@ -183,7 +184,6 @@ class AppCommand {
             return false;
         }
         var me = this;
-        let srcCodePath = path.join(sdk, exports.CODE_DIR_NAME);
         let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
         let absCfgPath = path.join(path.join(sdk, platform), "config.json");
         let relCfgPath = path.join(path.join(process.cwd(), sdk, platform), "config.json");
@@ -202,12 +202,23 @@ class AppCommand {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
+        let srcCodePath = path.join(sdk, exports.CODE_DIR_NAME);
         let destCodePath = path.join(appPath, exports.CODE_DIR_NAME);
         if (fs.existsSync(destCodePath)) {
+            console.log("警告： 目录 " + destCodePath + " 已经存在");
         }
         else {
             console.log('copydir ', srcCodePath, path.dirname(appPath));
             copyFolderRecursiveSync(srcCodePath, path.dirname(appPath));
+        }
+        let srcThirdPartyPath = path.join(sdk, exports.THIRD_PARTY_DIR_NAME);
+        let desThirdPartyPath = path.join(appPath, exports.THIRD_PARTY_DIR_NAME);
+        if (fs.existsSync(desThirdPartyPath)) {
+            console.log("警告： 目录 " + desThirdPartyPath + " 已经存在");
+        }
+        else {
+            console.log('copydir ', srcThirdPartyPath, path.dirname(appPath));
+            copyFolderRecursiveSync(srcThirdPartyPath, path.dirname(appPath));
         }
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));

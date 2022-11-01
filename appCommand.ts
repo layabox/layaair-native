@@ -18,6 +18,8 @@ export const PLATFORM_IOS: string = 'ios';
 export const PLATFORM_ANDROID_STUDIO: string = 'android';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
 export const CODE_DIR_NAME: string = 'Conch';
+export const THIRD_PARTY_DIR_NAME: string = 'ThirdParty';
+
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
         return true;
@@ -192,7 +194,7 @@ export class AppCommand {
         }
 
         var me = this;
-        let srcCodePath = path.join(sdk, CODE_DIR_NAME);
+       
 
         let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
         let absCfgPath = path.join(path.join(sdk, platform), "config.json");
@@ -217,13 +219,26 @@ export class AppCommand {
 
         /*if (config.version) {
             console.log("SDK version " + config.version);
-        }*/
+        }*/ 
+        
+        let srcCodePath = path.join(sdk, CODE_DIR_NAME);
         let destCodePath = path.join(appPath, CODE_DIR_NAME);
         if (fs.existsSync(destCodePath)) {
+            console.log("警告： 目录 " + destCodePath + " 已经存在");
         }
         else {
             console.log('copydir ', srcCodePath, path.dirname(appPath));
             copyFolderRecursiveSync(srcCodePath, path.dirname(appPath));
+        }
+        
+        let srcThirdPartyPath = path.join(sdk, THIRD_PARTY_DIR_NAME);
+        let desThirdPartyPath = path.join(appPath, THIRD_PARTY_DIR_NAME);
+        if (fs.existsSync(desThirdPartyPath)) {
+            console.log("警告： 目录 " + desThirdPartyPath + " 已经存在");
+        }
+        else {
+            console.log('copydir ', srcThirdPartyPath, path.dirname(appPath));
+            copyFolderRecursiveSync(srcThirdPartyPath, path.dirname(appPath));
         }
         
         let srcPath = path.join(sdk, platform);
