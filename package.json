@@ -1,6 +1,6 @@
 {
   "name": "layanative3",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "laya native tools 3",
   "main": "./out/index.js",
   "bin": {
