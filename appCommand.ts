@@ -5,7 +5,7 @@ import * as request from 'request';
 import child_process = require('child_process');
 import  xmldom = require('xmldom');
 import * as ProgressBar from 'progress';
-
+import crypto = require('crypto');
 export const NATIVE_STAND_ALONE_URL: string = 'http://stand.alone.version/index.js';
 export const VERSION_CONFIG_URL: string = 'https://www.layabox.com/layanative3.0/layanativeRes/versionconfig.json';
 export const DEFAULT_NAME: string = 'LayaBox';
@@ -15,10 +15,10 @@ export const DEFAULT_TYPE: number = 0;
 export const NATIVE_JSON_FILE_NAME: string = 'native.json';
 export const PLATFORM_ALL: string = 'all';
 export const PLATFORM_IOS: string = 'ios';
-export const PLATFORM_ANDROID_STUDIO: string = 'android';
+export const PLATFORM_ANDROID_STUDIO: string = 'android_studio';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
-export const CODE_DIR_NAME: string = 'Conch';
-export const THIRD_PARTY_DIR_NAME: string = 'ThirdParty';
+//export const CODE_DIR_NAME: string = 'Conch';
+//export const THIRD_PARTY_DIR_NAME: string = 'ThirdParty';
 
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
@@ -221,7 +221,7 @@ export class AppCommand {
             console.log("SDK version " + config.version);
         }*/ 
         
-        let srcCodePath = path.join(sdk, CODE_DIR_NAME);
+        /*let srcCodePath = path.join(sdk, CODE_DIR_NAME);
         let destCodePath = path.join(appPath, CODE_DIR_NAME);
         if (fs.existsSync(destCodePath)) {
             console.log("警告： 目录 " + destCodePath + " 已经存在");
@@ -239,7 +239,7 @@ export class AppCommand {
         else {
             console.log('copydir ', srcThirdPartyPath, path.dirname(appPath));
             copyFolderRecursiveSync(srcThirdPartyPath, path.dirname(appPath));
-        }
+        }*/
         
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
@@ -447,8 +447,16 @@ export class AppCommand {
     static getSDKPath(version: string): string {
         return path.join(AppCommand.getAppDataPath(), version);
     }
-    static isSDKExists(version: string): boolean {
-        return fs.existsSync(path.join(AppCommand.getAppDataPath(), version));
+    static isSDKExists(version: string, md5:string): boolean {
+        var realPath = path.join(AppCommand.getAppDataPath(), version);
+        if (!fs.existsSync(realPath)) {
+            return false;
+        }
+        var md5Read = crypto.createHash('md5').update(fs.readFileSync(realPath)).digest("hex");
+        if (md5Read == md5) {
+            return true;
+        }
+        return false;
     }
     static getLocalJSONConfigPath(): string {
         return path.join(AppCommand.getAppDataPath(), "versionconfig.json");

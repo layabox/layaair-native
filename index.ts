@@ -42,8 +42,26 @@ module.exports = {
     downloadsdk:(ver:string)=>{
         let zip = path.join(AppCommand.AppCommand.getSDKRootPath(), ver+'.zip');
     },
-    isSDKExist:(ver:string)=>{
-        return AppCommand.AppCommand.isSDKExists(ver);
+    isSDKExist:async (ver:string)=>{
+        let sdkVersionConfig = await AppCommand.getServerJSONConfig(AppCommand.VERSION_CONFIG_URL + '?' + Math.random());
+        if (!sdkVersionConfig) {
+            return false;
+        }
+
+        let found = false;
+        let index;
+        for (let i = 0; i < sdkVersionConfig.versionList.length; i++) {
+          if (sdkVersionConfig.versionList[i].version === ver) {
+            found = true;
+            index = i;
+            break;
+          }
+        }
+        if (!found) {
+            return false;
+        }
+
+        return AppCommand.AppCommand.isSDKExists(ver, sdkVersionConfig.versionList[index].md5);
     },
     getSDKRootPath:()=>{
         return AppCommand.AppCommand.getSDKRootPath();
