@@ -105,7 +105,7 @@ var handler = function (argv) {
                     return;
                 }
                 if (!argv.sdk && !argv.version) {
-                    if (!AppCommand.AppCommand.isSDKExists(sdkVersionConfig.versionList[0].version)) {
+                    if (!AppCommand.AppCommand.isSDKExists(sdkVersionConfig.versionList[0].version, sdkVersionConfig.versionList[0].md5)) {
                         let zip = path.join(AppCommand.AppCommand.getSDKRootPath(), path.basename(sdkVersionConfig.versionList[0].url));
                         yield AppCommand.download(sdkVersionConfig.versionList[0].url, zip, function () {
                             AppCommand.unzip(zip, path.dirname(zip), function (error, stdout, stderr) {
@@ -133,7 +133,7 @@ var handler = function (argv) {
                         console.log('错误：版本 ' + argv.version + ' 服务器找不到');
                         return;
                     }
-                    if (!AppCommand.AppCommand.isSDKExists(argv.version)) {
+                    if (!AppCommand.AppCommand.isSDKExists(argv.version, sdkVersionConfig.versionList[index].md5)) {
                         let zip = path.join(AppCommand.AppCommand.getSDKRootPath(), path.basename(sdkVersionConfig.versionList[index].url));
                         yield AppCommand.download(sdkVersionConfig.versionList[index].url, zip, function () {
                             AppCommand.unzip(zip, path.dirname(zip), function (error, stdout, stderr) {

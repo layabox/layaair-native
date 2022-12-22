@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.THIRD_PARTY_DIR_NAME = exports.CODE_DIR_NAME = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
+exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
 const fs = require("fs");
 const path = require("path");
 const gen_dcc = require("layadcc");
@@ -17,6 +17,7 @@ const request = require("request");
 const child_process = require("child_process");
 const xmldom = require("xmldom");
 const ProgressBar = require("progress");
+const crypto = require("crypto");
 exports.NATIVE_STAND_ALONE_URL = 'http://stand.alone.version/index.js';
 exports.VERSION_CONFIG_URL = 'https://www.layabox.com/layanative3.0/layanativeRes/versionconfig.json';
 exports.DEFAULT_NAME = 'LayaBox';
@@ -26,10 +27,8 @@ exports.DEFAULT_TYPE = 0;
 exports.NATIVE_JSON_FILE_NAME = 'native.json';
 exports.PLATFORM_ALL = 'all';
 exports.PLATFORM_IOS = 'ios';
-exports.PLATFORM_ANDROID_STUDIO = 'android';
+exports.PLATFORM_ANDROID_STUDIO = 'android_studio';
 exports.H5_PROJECT_CONFIG_FILE = 'config.json';
-exports.CODE_DIR_NAME = 'Conch';
-exports.THIRD_PARTY_DIR_NAME = 'ThirdParty';
 function mkdirsSync(dirname, mode) {
     if (fs.existsSync(dirname)) {
         return true;
@@ -201,24 +200,6 @@ class AppCommand {
         if (fs.existsSync(appPath)) {
             console.log("错误： 项目 " + appPath + " 已经存在");
             return false;
-        }
-        let srcCodePath = path.join(sdk, exports.CODE_DIR_NAME);
-        let destCodePath = path.join(appPath, exports.CODE_DIR_NAME);
-        if (fs.existsSync(destCodePath)) {
-            console.log("警告： 目录 " + destCodePath + " 已经存在");
-        }
-        else {
-            console.log('copydir ', srcCodePath, path.dirname(appPath));
-            copyFolderRecursiveSync(srcCodePath, path.dirname(appPath));
-        }
-        let srcThirdPartyPath = path.join(sdk, exports.THIRD_PARTY_DIR_NAME);
-        let desThirdPartyPath = path.join(appPath, exports.THIRD_PARTY_DIR_NAME);
-        if (fs.existsSync(desThirdPartyPath)) {
-            console.log("警告： 目录 " + desThirdPartyPath + " 已经存在");
-        }
-        else {
-            console.log('copydir ', srcThirdPartyPath, path.dirname(appPath));
-            copyFolderRecursiveSync(srcThirdPartyPath, path.dirname(appPath));
         }
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
@@ -398,8 +379,16 @@ class AppCommand {
     static getSDKPath(version) {
         return path.join(AppCommand.getAppDataPath(), version);
     }
-    static isSDKExists(version) {
-        return fs.existsSync(path.join(AppCommand.getAppDataPath(), version));
+    static isSDKExists(version, md5) {
+        var realPath = path.join(AppCommand.getAppDataPath(), version);
+        if (!fs.existsSync(realPath)) {
+            return false;
+        }
+        var md5Read = crypto.createHash('md5').update(fs.readFileSync(realPath)).digest("hex");
+        if (md5Read == md5) {
+            return true;
+        }
+        return false;
     }
     static getLocalJSONConfigPath() {
         return path.join(AppCommand.getAppDataPath(), "versionconfig.json");
