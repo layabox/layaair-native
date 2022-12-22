@@ -452,7 +452,11 @@ export class AppCommand {
         if (!fs.existsSync(realPath)) {
             return false;
         }
-        var md5Read = crypto.createHash('md5').update(fs.readFileSync(realPath)).digest("hex");
+        var zipPath = realPath + ".zip";
+        if (!fs.existsSync(zipPath)) {
+            return false;
+        }
+        var md5Read = crypto.createHash('md5').update(fs.readFileSync(zipPath)).digest("hex");
         if (md5Read == md5) {
             return true;
         }
