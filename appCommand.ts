@@ -460,6 +460,7 @@ export class AppCommand {
         if (md5Read == md5) {
             return true;
         }
+        fs.rmdirSync(realPath);
         return false;
     }
     static getLocalJSONConfigPath(): string {
