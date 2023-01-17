@@ -87,7 +87,7 @@ var handler = function (argv) {
         try {
             let cmd = new AppCommand.AppCommand();
             if (argv.type > 0 && !argv.folder) {
-                console.log('错误：缺少参数-f');
+                console.log('错误：缺少参数-f，资源路径缺失');
                 return;
             }
             let folder = argv.folder ? (path.isAbsolute(argv.folder) ? argv.folder : path.join(process.cwd(), argv.folder)) : argv.folder;

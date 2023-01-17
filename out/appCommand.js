@@ -392,6 +392,7 @@ class AppCommand {
         if (md5Read == md5) {
             return true;
         }
+        rmdirSync(realPath);
         return false;
     }
     static getLocalJSONConfigPath() {
