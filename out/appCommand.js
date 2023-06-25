@@ -410,30 +410,48 @@ class AppCommand {
     }
 }
 exports.AppCommand = AppCommand;
+let isFirstGetServerJSONConfig = true;
 function getServerJSONConfig(url) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!url)
             url = exports.VERSION_CONFIG_URL + '?' + Math.random();
-        return new Promise(function (res, rej) {
-            request(url, function (error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    fs.writeFileSync(AppCommand.getLocalJSONConfigPath(), body);
-                    res(JSON.parse(body));
-                }
-                else {
-                    console.log('错误: 网络连接异常，下载 ' + url + '失败');
-                    if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) {
-                        console.log('读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功');
-                        let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(), 'utf8');
-                        res(JSON.parse(config));
+        if (isFirstGetServerJSONConfig) {
+            return new Promise(function (res, rej) {
+                request(url, function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        console.log('0读取网络 ' + url + '成功' + isFirstGetServerJSONConfig);
+                        isFirstGetServerJSONConfig = false;
+                        fs.writeFileSync(AppCommand.getLocalJSONConfigPath(), body);
+                        res(JSON.parse(body));
                     }
                     else {
-                        console.log('读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败');
-                        res(null);
+                        console.log('错误: 网络连接异常，下载 ' + url + '失败');
+                        if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) {
+                            console.log('0读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功' + isFirstGetServerJSONConfig);
+                            let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(), 'utf8');
+                            res(JSON.parse(config));
+                        }
+                        else {
+                            console.log('0读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败' + isFirstGetServerJSONConfig);
+                            res(null);
+                        }
                     }
+                });
+            });
+        }
+        else {
+            return new Promise(function (res, rej) {
+                if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) {
+                    console.log('1读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功 ' + isFirstGetServerJSONConfig);
+                    let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(), 'utf8');
+                    res(JSON.parse(config));
+                }
+                else {
+                    console.log('1读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败 ' + isFirstGetServerJSONConfig);
+                    res(null);
                 }
             });
-        });
+        }
     });
 }
 exports.getServerJSONConfig = getServerJSONConfig;
