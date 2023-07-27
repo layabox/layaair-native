@@ -24,12 +24,12 @@ exports.handler = function (argv) {
         nativeJSONPath = AppCommand.AppCommand.getNativeJSONPath(argv.path);
         
         if (!fs.existsSync(nativePath)) {
-            console.log('错误: 找不到目录 ' + nativePath);
+            console.error('错误: 找不到目录 ' + nativePath);
             return;
         }
 
         if (!fs.existsSync(nativeJSONPath)) {
-            console.log('错误: 找不到文件 ' + nativeJSONPath + "，无效的native项目路径");
+            console.error('错误: 找不到文件 ' + nativeJSONPath + "，无效的native项目路径");
             return;
         }
 
@@ -42,14 +42,14 @@ exports.handler = function (argv) {
         if (fs.existsSync(appPath)) {
             cmd.excuteRemoveRes(appPath);
         }
-        console.log('请继续......');
+        console.debug('请继续......');
     }
     catch (error) {
         if (error.code === 'EPERM') {
-            console.log('错误：文件已经被使用或被其他程序打开');
+            console.error('错误：文件已经被使用或被其他程序打开');
         }
-        console.log();
-        console.log(error.name);
-        console.log(error.message);
+        console.error();
+        console.error(error.name);
+        console.error(error.message);
     }
 }

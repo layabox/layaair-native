@@ -100,53 +100,53 @@ class AppCommand {
     }
     excuteRefreshRes(folder, url, appPath) {
         if (!fs.existsSync(folder)) {
-            console.log('错误: 找不到目录 ' + folder);
+            console.error('错误: 找不到目录 ' + folder);
             return false;
         }
         var me = this;
         if (!fs.existsSync(appPath)) {
-            console.log("警告: 找不到目录 " + appPath);
+            console.error("错误: 找不到目录 " + appPath);
             return false;
         }
         let configPath = path.join(appPath, "config.json");
         if (!fs.existsSync(configPath)) {
-            console.log('错误: 找不到文件 ' + configPath);
+            console.error('错误: 找不到文件 ' + configPath);
             return false;
         }
         let config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         if (!config) {
-            console.log('错误: 读取文件 ' + configPath + ' 失败');
+            console.error('错误: 读取文件 ' + configPath + ' 失败');
             return false;
         }
         if (fs.existsSync(path.join(appPath, config["res"]["path"], 'stand.alone.version'))) {
             if (url === '' || url === undefined) {
                 url = config["platform"] ? getStandAloneUrl(config["platform"]) : exports.NATIVE_STAND_ALONE_URL;
-                console.log('您正在打包单机版...');
+                console.debug('您正在打包单机版...');
             }
             else {
                 if (isStandAloneUrl(url)) {
-                    console.log('您正在打包单机版...');
+                    console.debug('您正在打包单机版...');
                 }
                 else {
-                    console.log('您正在从单机版地址切换到网络版,请注意修改相关代码...');
+                    console.debug('您正在从单机版地址切换到网络版,请注意修改相关代码...');
                 }
             }
         }
         else {
             if (url === '' || url === undefined) {
-                console.log('错误: 缺少参数url，请重新输入 ');
+                console.error('错误: 缺少参数url，请重新输入 ');
                 return false;
             }
             else {
                 if (isStandAloneUrl(url)) {
-                    console.log('您正在从网络版地址切换到单机版,请注意修改相关代码...');
+                    console.debug('您正在从网络版地址切换到单机版,请注意修改相关代码...');
                 }
                 else {
-                    console.log('您正在打包网络版...');
+                    console.debug('您正在打包网络版...');
                 }
             }
         }
-        console.log("REPLACE rmdir1 " + path.join(appPath, config["res"]["path"]));
+        console.debug("REPLACE rmdir1 " + path.join(appPath, config["res"]["path"]));
         rmdirSync(path.join(appPath, config["res"]["path"]));
         this.processDcc(config, folder, url, appPath);
         return true;
@@ -154,22 +154,22 @@ class AppCommand {
     excuteRemoveRes(appPath) {
         let configPath = path.join(appPath, "config.json");
         if (!fs.existsSync(appPath)) {
-            console.log("警告: 找不到目录 " + appPath);
+            console.error("警告: 找不到目录 " + appPath);
             return false;
         }
         if (!fs.existsSync(configPath)) {
-            console.log('错误: 找不到文件 ' + configPath);
+            console.error('错误: 找不到文件 ' + configPath);
             return false;
         }
-        console.log('REPLACE readjson2 ' + configPath);
+        console.debug('REPLACE readjson2 ' + configPath);
         let config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         if (!config) {
-            console.log('错误: 读取文件 ' + configPath + ' 失败');
+            console.debug('错误: 读取文件 ' + configPath + ' 失败');
             return false;
         }
         let dir = path.join(appPath, config["res"]["path"]);
-        console.log('正在删除 ' + dir + ' ...');
-        console.log('REPLACE emptydir1 ' + dir);
+        console.debug('正在删除 ' + dir + ' ...');
+        console.debug('REPLACE emptydir1 ' + dir);
         rmdirSync(dir);
         mkdirsSync(dir);
         return true;
@@ -179,7 +179,7 @@ class AppCommand {
             return false;
         }
         if (type > 0 && !fs.existsSync(folder)) {
-            console.log('错误: 找不到目录 ' + folder);
+            console.error('错误: 找不到目录 ' + folder);
             return false;
         }
         var me = this;
@@ -188,21 +188,21 @@ class AppCommand {
         let relCfgPath = path.join(path.join(process.cwd(), sdk, platform), "config.json");
         let configPath = path.isAbsolute(sdk) ? absCfgPath : relCfgPath;
         if (!fs.existsSync(configPath)) {
-            console.log('错误: 找不到文件 ' + configPath + '。不是有效的SDK目录');
+            console.error('错误: 找不到文件 ' + configPath + '。不是有效的SDK目录');
             return false;
         }
-        console.log('REPLACE  readjson2', configPath);
+        console.debug('REPLACE  readjson2', configPath);
         let config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         if (!config) {
-            console.log('错误: 读取文件 ' + configPath + ' 失败');
+            console.error('错误: 读取文件 ' + configPath + ' 失败');
             return false;
         }
         if (fs.existsSync(appPath)) {
-            console.log("错误： 项目 " + appPath + " 已经存在");
+            console.error("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
         let srcPath = path.join(sdk, platform);
-        console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
+        console.debug('REPLACE copydir1 ', srcPath, path.dirname(appPath));
         copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         if (type === 2) {
             url = getStandAloneUrl(platform);
@@ -216,13 +216,13 @@ class AppCommand {
         this.processName(config, name, appPath);
         let newConfigPath = path.join(appPath, "config.json");
         config["res"]["path"] = config["res"]["path"].replace(config["template"]["name"], name);
-        console.log('REPLACE  writejson3 ', newConfigPath);
+        console.debug('REPLACE  writejson3 ', newConfigPath);
         var p1 = path.dirname(newConfigPath);
         mkdirsSync(p1);
         fs.writeFileSync(newConfigPath, JSON.stringify(config));
         let nativeJSONPath = AppCommand.getNativeJSONPath(path.join(outputPath, name));
         let nativeJSON = { h5: folder ? folder : '' };
-        console.log('REPLACE writeJSON4', nativeJSONPath);
+        console.debug('REPLACE writeJSON4', nativeJSONPath);
         p1 = path.dirname(nativeJSONPath);
         mkdirsSync(p1);
         fs.writeFileSync(nativeJSONPath, JSON.stringify(nativeJSON));
@@ -247,7 +247,7 @@ class AppCommand {
                 var srcPath = path.join(appPath, file);
                 var str = me.read(srcPath);
                 str = str.replace(new RegExp(config["url"]["src"]), config["url"]["des"].replace("${url}", url));
-                console.log('REPLACE outputfile5', srcPath);
+                console.debug('REPLACE outputfile5', srcPath);
                 var p = path.dirname(srcPath);
                 mkdirsSync(p);
                 fs.writeFileSync(srcPath, str);
@@ -261,7 +261,7 @@ class AppCommand {
                 var destPath = path.join(appPath, file);
                 var str = me.read(destPath);
                 str = str.replace(new RegExp(config["package"]["name"], "g"), package_name);
-                console.log('REPLACE outfile6', destPath);
+                console.debug('REPLACE outfile6', destPath);
                 var p = path.dirname(destPath);
                 mkdirsSync(p);
                 fs.writeFileSync(destPath, str);
@@ -289,7 +289,7 @@ class AppCommand {
             if (!fs.existsSync(outpath)) {
                 mkdirsSync(outpath);
             }
-            console.log('正在执行LayaDcc...');
+            console.debug('正在执行LayaDcc...');
             gen_dcc.gendcc(res_path, outpath, true, false);
         }
     }
@@ -318,7 +318,7 @@ class AppCommand {
                 }
             }
         }
-        console.log('REPLACE  outputfile8', file);
+        console.debug('REPLACE  outputfile8', file);
         var p1 = path.dirname(file);
         mkdirsSync(p1);
         fs.writeFileSync(file, doc.toString());
@@ -329,7 +329,7 @@ class AppCommand {
             var srcPath = path.join(appPath, file);
             var str = me.read(srcPath);
             str = str.replace(new RegExp(config["template"]["name"], "g"), name);
-            console.log('REPLACE outputfile9 ' + srcPath);
+            console.debug('REPLACE outputfile9 ' + srcPath);
             var p = path.dirname(srcPath);
             mkdirsSync(p);
             fs.writeFileSync(srcPath, str);
@@ -368,7 +368,7 @@ class AppCommand {
             dataPath = appdata + "/Laya/layanative3/template/";
         }
         if (!fs.existsSync(dataPath)) {
-            console.log('REPLACE: mkdir11 ' + dataPath);
+            console.debug('REPLACE: mkdir11 ' + dataPath);
             mkdirsSync(dataPath);
         }
         return dataPath;
@@ -419,20 +419,20 @@ function getServerJSONConfig(url) {
             return new Promise(function (res, rej) {
                 request(url, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
-                        console.log('0读取网络 ' + url + '成功' + isFirstGetServerJSONConfig);
+                        console.debug('0读取网络 ' + url + '成功' + isFirstGetServerJSONConfig);
                         isFirstGetServerJSONConfig = false;
                         fs.writeFileSync(AppCommand.getLocalJSONConfigPath(), body);
                         res(JSON.parse(body));
                     }
                     else {
-                        console.log('错误: 网络连接异常，下载 ' + url + '失败');
+                        console.error('错误: 网络连接异常，下载 ' + url + '失败');
                         if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) {
-                            console.log('0读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功' + isFirstGetServerJSONConfig);
+                            console.debug('0读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功' + isFirstGetServerJSONConfig);
                             let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(), 'utf8');
                             res(JSON.parse(config));
                         }
                         else {
-                            console.log('0读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败' + isFirstGetServerJSONConfig);
+                            console.debug('0读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败' + isFirstGetServerJSONConfig);
                             res(null);
                         }
                     }
@@ -442,12 +442,12 @@ function getServerJSONConfig(url) {
         else {
             return new Promise(function (res, rej) {
                 if (fs.existsSync(AppCommand.getLocalJSONConfigPath())) {
-                    console.log('1读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功 ' + isFirstGetServerJSONConfig);
+                    console.debug('1读取本地 ' + AppCommand.getLocalJSONConfigPath() + '成功 ' + isFirstGetServerJSONConfig);
                     let config = fs.readFileSync(AppCommand.getLocalJSONConfigPath(), 'utf8');
                     res(JSON.parse(config));
                 }
                 else {
-                    console.log('1读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败 ' + isFirstGetServerJSONConfig);
+                    console.debug('1读取本地 ' + AppCommand.getLocalJSONConfigPath() + '失败 ' + isFirstGetServerJSONConfig);
                     res(null);
                 }
             });
@@ -478,18 +478,18 @@ function download(url, file, callBack) {
                     res(true);
                 }
                 else {
-                    console.log('错误: 网络连接异常，下载 ' + url + '失败');
+                    console.error('错误: 网络连接异常，下载 ' + url + '失败');
                     res(false);
                 }
             }).on('end', function () {
-                console.log('\n');
+                console.debug('\n');
             });
         });
     });
 }
 exports.download = download;
 function unzip(unzipurl, filepath, callbackHandler) {
-    console.log('正在解压 ' + unzipurl + ' 到 ' + filepath + ' ...');
+    console.debug('正在解压 ' + unzipurl + ' 到 ' + filepath + ' ...');
     if (process.platform === 'darwin') {
         var cmd = "unzip -oq \"" + unzipurl + "\" -d \"" + filepath + "\"";
         child_process.execSync(cmd);
@@ -502,7 +502,7 @@ function unzip(unzipurl, filepath, callbackHandler) {
 }
 exports.unzip = unzip;
 function unzipAsync(unzipurl, filepath, cb) {
-    console.log('正在解压 ' + unzipurl + ' 到 ' + filepath + ' ...');
+    console.debug('正在解压 ' + unzipurl + ' 到 ' + filepath + ' ...');
     if (process.platform === 'darwin') {
         var cmd = "unzip -oq \"" + unzipurl + "\" -d \"" + filepath + "\"";
         child_process.exec(cmd, { maxBuffer: 1024 * 1024 }, cb);
@@ -516,7 +516,7 @@ function unzipAsync(unzipurl, filepath, cb) {
 exports.unzipAsync = unzipAsync;
 function checkURL(url, platform) {
     if (url && url.indexOf('.html') !== -1) {
-        console.log('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
+        console.error('错误：LayaNative项目URL不支持.html文件，请使用.json文件或.js文件');
         return false;
     }
     return true;

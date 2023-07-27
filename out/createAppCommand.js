@@ -87,13 +87,13 @@ var handler = function (argv) {
         try {
             let cmd = new AppCommand.AppCommand();
             if (argv.type > 0 && !argv.folder) {
-                console.log('错误：缺少参数-f，资源路径缺失');
+                console.error('错误：缺少参数-f，资源路径缺失');
                 return;
             }
             let folder = argv.folder ? (path.isAbsolute(argv.folder) ? argv.folder : path.join(process.cwd(), argv.folder)) : argv.folder;
             let sdk;
             if (argv.sdk && argv.version) {
-                console.log('错误：参数 --sdk 和 --version 不能同时指定两个');
+                console.error('错误：参数 --sdk 和 --version 不能同时指定两个');
                 return;
             }
             else if (argv.sdk) {
@@ -110,9 +110,9 @@ var handler = function (argv) {
                         yield AppCommand.download(sdkVersionConfig.versionList[0].url, zip, function () {
                             AppCommand.unzip(zip, path.dirname(zip), function (error, stdout, stderr) {
                                 if (error) {
-                                    console.log(error.name);
-                                    console.log(error.message);
-                                    console.log(error.stack);
+                                    console.error(error.name);
+                                    console.error(error.message);
+                                    console.error(error.stack);
                                 }
                             });
                         });
@@ -130,7 +130,7 @@ var handler = function (argv) {
                         }
                     }
                     if (!found) {
-                        console.log('错误：版本 ' + argv.version + ' 服务器找不到');
+                        console.error('错误：版本 ' + argv.version + ' 服务器找不到');
                         return;
                     }
                     if (!AppCommand.AppCommand.isSDKExists(argv.version, sdkVersionConfig.versionList[index].md5)) {
@@ -138,9 +138,9 @@ var handler = function (argv) {
                         yield AppCommand.download(sdkVersionConfig.versionList[index].url, zip, function () {
                             AppCommand.unzip(zip, path.dirname(zip), function (error, stdout, stderr) {
                                 if (error) {
-                                    console.log(error.name);
-                                    console.log(error.message);
-                                    console.log(error.stack);
+                                    console.error(error.name);
+                                    console.error(error.message);
+                                    console.error(error.stack);
                                 }
                             });
                         });
@@ -149,15 +149,15 @@ var handler = function (argv) {
                 }
             }
             if (argv.type === 2 && argv.url) {
-                console.log("警告： 单机版不需要参数url");
+                console.debug("警告： 单机版不需要参数url");
             }
             if (argv.type === 0 || argv.type === 1) {
                 if (!argv.url || argv.url === '') {
-                    console.log('错误：缺少参数--url');
+                    console.error('错误：缺少参数--url');
                     return;
                 }
                 if (AppCommand.isStandAloneUrl(argv.url)) {
-                    console.log('错误：请提供有效参数--url');
+                    console.error('错误：请提供有效参数--url');
                     return;
                 }
             }
@@ -168,15 +168,15 @@ var handler = function (argv) {
             else {
                 cmd.excuteCreateApp(folder, sdk, argv.platform, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
             }
-            console.log('请继续......');
+            console.debug('请继续......');
         }
         catch (error) {
             console.log();
             if (error.code === 'ETIMEDOUT') {
-                console.log('错误：网络连接超时');
+                console.error('错误：网络连接超时');
             }
-            console.log(error.name);
-            console.log(error.message);
+            console.error(error.name);
+            console.error(error.message);
         }
     });
 };
