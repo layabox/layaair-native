@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_ANDROID_ECLIPSE = exports.PLATFORM_IOS_WKWEBVIEW = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.WKWEBVIEW_STAND_ALONE_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
+exports.isStandAloneUrl = exports.getStandAloneUrl = exports.checkURL = exports.unzipAsync = exports.unzip = exports.download = exports.getServerJSONConfig = exports.AppCommand = exports.H5_PROJECT_CONFIG_FILE = exports.PLATFORM_OHOS = exports.PLATFORM_ANDROID_STUDIO = exports.PLATFORM_ANDROID_ECLIPSE = exports.PLATFORM_IOS_WKWEBVIEW = exports.PLATFORM_IOS = exports.PLATFORM_ALL = exports.NATIVE_JSON_FILE_NAME = exports.DEFAULT_TYPE = exports.DEFAULT_PACKAGE_NAME = exports.DEFAULT_APP_NAME = exports.DEFAULT_NAME = exports.VERSION_CONFIG_URL = exports.WKWEBVIEW_STAND_ALONE_URL = exports.NATIVE_STAND_ALONE_URL = void 0;
 const fs = require("fs");
 const path = require("path");
 const gen_dcc = require("layadcc");
@@ -17,6 +17,7 @@ const request = require("request");
 const child_process = require("child_process");
 const xmldom = require("xmldom");
 const ProgressBar = require("progress");
+const Ohos_1 = require("./Ohos");
 exports.NATIVE_STAND_ALONE_URL = 'http://stand.alone.version/index.js';
 exports.WKWEBVIEW_STAND_ALONE_URL = 'http://stand.alone.version/index.html';
 exports.VERSION_CONFIG_URL = 'https://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
@@ -30,6 +31,7 @@ exports.PLATFORM_IOS = 'ios';
 exports.PLATFORM_IOS_WKWEBVIEW = 'wkwebview';
 exports.PLATFORM_ANDROID_ECLIPSE = 'android_eclipse';
 exports.PLATFORM_ANDROID_STUDIO = 'android_studio';
+exports.PLATFORM_OHOS = 'ohos';
 exports.H5_PROJECT_CONFIG_FILE = 'config.json';
 function mkdirsSync(dirname, mode) {
     if (fs.existsSync(dirname)) {
@@ -99,8 +101,11 @@ function rmdirSync(dir) {
 ;
 class AppCommand {
     constructor() {
+        this.tools = new Map();
+        this.tools.set(exports.PLATFORM_OHOS, new Ohos_1.OhosTools());
     }
-    excuteRefreshRes(folder, url, appPath) {
+    excuteRefreshRes(folder, url, nativePath, platform) {
+        let appPath = AppCommand.getAppPath(nativePath, platform);
         if (!fs.existsSync(folder)) {
             console.log('错误: 找不到目录 ' + folder);
             return false;
@@ -109,6 +114,9 @@ class AppCommand {
         if (!fs.existsSync(appPath)) {
             console.log("警告: 找不到目录 " + appPath);
             return false;
+        }
+        if (platform === exports.PLATFORM_OHOS) {
+            return this.tools.get(platform).excuteRefreshRes(folder, url, appPath);
         }
         let configPath = path.join(appPath, "config.json");
         if (!fs.existsSync(configPath)) {
@@ -177,6 +185,9 @@ class AppCommand {
         return true;
     }
     excuteCreateApp(folder, sdk, platform, type, url, name, app_name, package_name, outputPath) {
+        if (platform === exports.PLATFORM_OHOS) {
+            return this.tools.get(platform).excuteCreateApp(folder, sdk, platform, type, url, name, app_name, package_name, outputPath);
+        }
         if (type !== 2 && !checkURL(url, platform)) {
             return false;
         }

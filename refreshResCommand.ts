@@ -10,7 +10,7 @@ exports.builder = {
   {
     alias: 'p',
     default: AppCommand.PLATFORM_ALL,
-    choices: [AppCommand.PLATFORM_ALL, , AppCommand.PLATFORM_IOS_WKWEBVIEW, AppCommand.PLATFORM_IOS, AppCommand.PLATFORM_ANDROID_ECLIPSE, AppCommand.PLATFORM_ANDROID_STUDIO],
+    choices: [AppCommand.PLATFORM_ALL, , AppCommand.PLATFORM_IOS_WKWEBVIEW, AppCommand.PLATFORM_IOS, AppCommand.PLATFORM_ANDROID_ECLIPSE, AppCommand.PLATFORM_ANDROID_STUDIO, AppCommand.PLATFORM_OHOS],
     required: false,
     requiresArg: true,
     description: '项目平台'
@@ -64,24 +64,13 @@ exports.handler = function (argv) {
     let folder = nativeJSON.h5;
 
     if (argv.platform === AppCommand.PLATFORM_ALL) {
-
-      let appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_IOS);
-      cmd.excuteRefreshRes(folder, argv.url, appPath);
-
-      appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_ANDROID_ECLIPSE);
-      cmd.excuteRefreshRes(folder, argv.url, appPath);
-
-      appPath = AppCommand.AppCommand.getAppPath(nativePath, AppCommand.PLATFORM_ANDROID_STUDIO);
-      cmd.excuteRefreshRes(folder, argv.url, appPath);
+      cmd.excuteRefreshRes(folder, argv.url, nativePath,AppCommand.PLATFORM_IOS);
+      cmd.excuteRefreshRes(folder, argv.url, nativePath, AppCommand.PLATFORM_ANDROID_ECLIPSE);
+      cmd.excuteRefreshRes(folder, argv.url, nativePath, AppCommand.PLATFORM_ANDROID_STUDIO);
+      cmd.excuteRefreshRes(folder, argv.url, nativePath, AppCommand.PLATFORM_OHOS);
     }
     else {
-      let appPath = AppCommand.AppCommand.getAppPath(nativePath, argv.platform);
-      if (fs.existsSync(appPath)) {
-        cmd.excuteRefreshRes(folder, argv.url, appPath);
-      }
-      else {
-        console.log('错误：找不到目录' + appPath);
-      }
+      cmd.excuteRefreshRes(folder, argv.url, nativePath, argv.platform);
     }
     console.log('请继续......');
   }

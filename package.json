@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/layabox/layaair-native#readme",
   "dependencies": {
+    "json5": "^2.2.3",
     "layadcc": "^1.7.1",
     "progress": "^2.0.0",
     "request": "^2.60.0",

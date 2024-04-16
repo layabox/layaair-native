@@ -36,7 +36,7 @@ exports.builder = {
     platform: {
         alias: 'p',
         default: AppCommand.PLATFORM_ALL,
-        choices: [AppCommand.PLATFORM_ALL, AppCommand.PLATFORM_IOS_WKWEBVIEW, AppCommand.PLATFORM_IOS, AppCommand.PLATFORM_ANDROID_ECLIPSE, AppCommand.PLATFORM_ANDROID_STUDIO],
+        choices: [AppCommand.PLATFORM_ALL, AppCommand.PLATFORM_IOS_WKWEBVIEW, AppCommand.PLATFORM_IOS, AppCommand.PLATFORM_ANDROID_ECLIPSE, AppCommand.PLATFORM_ANDROID_STUDIO, AppCommand.PLATFORM_OHOS],
         required: false,
         requiresArg: true,
         description: '项目平台'
@@ -165,6 +165,7 @@ exports.handler = function (argv) {
                 cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_IOS, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
                 cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_ANDROID_ECLIPSE, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
                 cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_ANDROID_STUDIO, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
+                cmd.excuteCreateApp(folder, sdk, AppCommand.PLATFORM_OHOS, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);
             }
             else {
                 cmd.excuteCreateApp(folder, sdk, argv.platform, argv.type, argv.url, argv.name, argv.app_name, argv.package_name, argv.path);

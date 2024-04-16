@@ -5,6 +5,7 @@ import * as request from 'request';
 import child_process = require('child_process');
 import  xmldom = require('xmldom');
 import * as ProgressBar from 'progress';
+import { BaseTools, OhosTools } from './Ohos';
 
 export const NATIVE_STAND_ALONE_URL: string = 'http://stand.alone.version/index.js';
 export const WKWEBVIEW_STAND_ALONE_URL: string = 'http://stand.alone.version/index.html';
@@ -19,7 +20,10 @@ export const PLATFORM_IOS: string = 'ios';
 export const PLATFORM_IOS_WKWEBVIEW: string = 'wkwebview';
 export const PLATFORM_ANDROID_ECLIPSE: string = 'android_eclipse';
 export const PLATFORM_ANDROID_STUDIO: string = 'android_studio';
+export const PLATFORM_OHOS: string = 'ohos';
 export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
+
+
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
         return true;
@@ -93,10 +97,14 @@ function rmdirSync(dir:string){
 };
 
 export class AppCommand {
+    tools:Map<string,BaseTools> = new Map<string,BaseTools>();
 
     constructor() {
+        this.tools.set(PLATFORM_OHOS, new OhosTools());
     }
-    public excuteRefreshRes(folder: string, url: string, appPath: string): boolean {
+    public excuteRefreshRes(folder: string, url: string, nativePath: string,platform:string): boolean {
+        let appPath= AppCommand.getAppPath(nativePath, platform);
+
         if (!fs.existsSync(folder)) {
             console.log('错误: 找不到目录 ' + folder);
             return false;
@@ -108,6 +116,10 @@ export class AppCommand {
             console.log("警告: 找不到目录 " + appPath);
             return false;
         }
+        if(platform === PLATFORM_OHOS){
+            return this.tools.get(platform).excuteRefreshRes(folder, url, appPath);
+        }
+       
         let configPath = path.join(appPath, "config.json");
         if (!fs.existsSync(configPath)) {
             console.log('错误: 找不到文件 ' + configPath);
@@ -183,7 +195,9 @@ export class AppCommand {
         return true;
     }
     public excuteCreateApp(folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean {
-
+        if(platform === PLATFORM_OHOS){
+            return this.tools.get(platform).excuteCreateApp(folder, sdk, platform, type, url, name, app_name, package_name, outputPath);
+        }
 		if (type !== 2 && !checkURL(url, platform)) {
 			return false;
 		}
