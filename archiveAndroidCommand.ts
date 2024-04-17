@@ -1,9 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import rcedit = require('rcedit');
 import * as AppCommand from './appCommand';
 import child_process = require('child_process');
+import xml2js = require('xml2js');
 
+export enum Orientation {
+    Landscape = 0, 
+    Portrait = 1, 
+    ReversePortrait = 2, 
+    ReverseLandscape = 3, 
+    SensorLandscape = 4, 
+    SensorPortrait = 5, 
+    Sensor = 6, 
+  }
 
 export enum AndroidArchitectures {
     ARMV7 = 1,
@@ -44,12 +53,13 @@ export interface OptionsAndroid {
     version_code: number;
     version_name: string;
     architectures: AndroidArchitectures;
+    orientation?: Orientation;
   }
 
 export class ArchiveAndroidCommand {
     constructor() {
     }
-    public static archive(options: OptionsAndroid): boolean {
+    public static async archive(options: OptionsAndroid) {
         let appcmd = new AppCommand.AppCommand();
         let ok = appcmd.excuteCreateApp(options.folder, options.sdk, AppCommand.PLATFORM_ANDROID_STUDIO, options.type, options.url, options.name, options.app_name, options.package_name, options.path);
         if (!ok) {
@@ -64,7 +74,7 @@ export class ArchiveAndroidCommand {
         const currentDirectory = process.cwd();
         console.log('当前目录是:', currentDirectory);
         let buildPath = path.join(options.path, options.name, "android_studio");
-        ArchiveAndroidCommand.writeFileLocalProperties(buildPath, options);
+        await ArchiveAndroidCommand.writeFileLocalProperties(buildPath, options);
         process.chdir(buildPath);
         if (options.archive_type == AndroidArchiveType.APK) {
             let cmd = "gradlew.bat assembleRelease";
@@ -82,7 +92,7 @@ export class ArchiveAndroidCommand {
         console.log('当前目录是:', currentDirectory);
         return true;
     }
-    private static writeFileLocalProperties(projectRootPath:string, options: OptionsAndroid) {
+    private static async writeFileLocalProperties(projectRootPath:string, options: OptionsAndroid) {
         let localPropertiesPath = path.join(projectRootPath, "gradle.properties");
         if (fs.existsSync(localPropertiesPath)) {
             let fileContent = fs.readFileSync(localPropertiesPath,'utf8');
@@ -175,6 +185,43 @@ export class ArchiveAndroidCommand {
                 const regex = /ABI_FILETERS=[^\n]*/g;
                 fileContent = fileContent.replace(regex, `ABI_FILETERS=${architectures}`);
             }
+            
+            if (options.orientation != null) {
+
+                let androidManifestXMLPath = path.join(projectRootPath, "app", "src", "main", "AndroidManifest.xml");
+                const xmlContent = fs.readFileSync(androidManifestXMLPath, 'utf8');
+                const jsObject = await xml2js.parseStringPromise(xmlContent);
+
+            
+                if (options.orientation == Orientation.Landscape) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'landscape';
+                }
+                else if (options.orientation == Orientation.Portrait) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'portrait';
+                }
+                else if (options.orientation == Orientation.ReverseLandscape) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'reverseLandscape';
+                }
+                else if (options.orientation == Orientation.ReversePortrait) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'reversePortrait';
+                }
+                else if (options.orientation == Orientation.SensorLandscape) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'sensorLandscape';
+                }
+                else if (options.orientation == Orientation.SensorPortrait) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'sensorPortrait';
+                }
+                else if (options.orientation == Orientation.Sensor) {
+                    jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'fullSensor';
+                }
+                
+                const builder = new xml2js.Builder();
+                const xmlModified = builder.buildObject(jsObject);
+                fs.writeFileSync(androidManifestXMLPath, xmlModified);
+
+            }
+
+            
 
             fs.writeFileSync(localPropertiesPath, fileContent);
         }
