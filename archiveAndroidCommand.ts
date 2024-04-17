@@ -5,7 +5,14 @@ import * as AppCommand from './appCommand';
 import child_process = require('child_process');
 
 
-export enum AndroidArchiveType {
+export enum AndroidArchitectures {
+    ARMV7 = 1,
+    ARM64 = 2,
+    X86 = 4,
+    X86_64 = 8,
+  }
+
+  export enum AndroidArchiveType {
     APK,
     AAB,
   }
@@ -34,6 +41,9 @@ export interface OptionsAndroid {
     debug_store_password: string;
     min_sdk_version: number;//整数
     target_sdk_version: number;//整数
+    version_code: number;
+    version_name: string;
+    architectures: AndroidArchitectures;
   }
 
 export class ArchiveAndroidCommand {
@@ -118,6 +128,52 @@ export class ArchiveAndroidCommand {
             if (options.target_sdk_version) {
                 const regex = /TARGET_SDK_VERSION=[^\n]*/g;
                 fileContent = fileContent.replace(regex, `TARGET_SDK_VERSION=${options.target_sdk_version}`);
+            }
+
+            if (options.version_code) {
+                const regex = /VERSION_CODE=[^\n]*/g;
+                fileContent = fileContent.replace(regex, `VERSION_CODE=${options.version_code}`);
+            }
+
+            if (options.version_name) {
+                const regex = /VERSION_NAME=[^\n]*/g;
+                fileContent = fileContent.replace(regex, `VERSION_NAME=${options.version_name}`);
+            }
+
+            let architectures = "";
+            if (options.architectures & AndroidArchitectures.ARMV7) {
+                architectures += "armeabi-v7a";
+            }
+            if (options.architectures & AndroidArchitectures.ARM64) {
+                if (architectures.length != 0) {
+                    architectures += ",arm64-v8a";
+                }
+                else {
+                    architectures += "arm64-v8a";
+                }
+            }
+
+            if (options.architectures & AndroidArchitectures.X86) {
+                if (architectures.length != 0) {
+                    architectures += ",x86";
+                }
+                else {
+                    architectures += "x86";
+                }
+            }
+
+            if (options.architectures & AndroidArchitectures.X86_64) {
+                if (architectures.length != 0) {
+                    architectures += ",x86_64";
+                }
+                else {
+                    architectures += "x86_64";
+                }
+            }
+
+            if (architectures.length != 0) {
+                const regex = /ABI_FILETERS=[^\n]*/g;
+                fileContent = fileContent.replace(regex, `ABI_FILETERS=${architectures}`);
             }
 
             fs.writeFileSync(localPropertiesPath, fileContent);
