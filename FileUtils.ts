@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as JSON5 from 'json5';
 import gen_dcc = require('layadcc');
 export class FileUtils {
     /**
@@ -139,4 +140,29 @@ export class FileUtils {
 
         }
     }
+
+    static readJSONSync(file: string): any {
+        if (!fs.existsSync(file)) {
+            console.log('错误: 找不到文件 ' + file);
+            return null;
+        }
+        return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+
+    static writeJSONSync(file: string, data: any, spaces: number): void {
+        fs.writeFileSync(file, JSON.stringify(data, null, spaces));
+    }
+
+    static readJSON5Sync(file: string): any {
+        if (!fs.existsSync(file)) {
+            console.log('错误: 找不到文件 ' + file);
+            return null;
+        }
+        return JSON5.parse(fs.readFileSync(file, 'utf-8'));
+    }
+
+    static writeJSON5Sync(file: string, data: any, spaces: number): void {
+        fs.writeFileSync(file, JSON5.stringify(data, null, spaces));
+    }
+
 }

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileUtils = void 0;
 const fs = require("fs");
 const path = require("path");
+const JSON5 = require("json5");
 const gen_dcc = require("layadcc");
 class FileUtils {
     static mkdirsSync(dirname, mode) {
@@ -95,6 +96,26 @@ class FileUtils {
             console.log('正在执行LayaDcc...');
             gen_dcc.gendcc(res_path, outpath, true, false);
         }
+    }
+    static readJSONSync(file) {
+        if (!fs.existsSync(file)) {
+            console.log('错误: 找不到文件 ' + file);
+            return null;
+        }
+        return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+    static writeJSONSync(file, data, spaces) {
+        fs.writeFileSync(file, JSON.stringify(data, null, spaces));
+    }
+    static readJSON5Sync(file) {
+        if (!fs.existsSync(file)) {
+            console.log('错误: 找不到文件 ' + file);
+            return null;
+        }
+        return JSON5.parse(fs.readFileSync(file, 'utf-8'));
+    }
+    static writeJSON5Sync(file, data, spaces) {
+        fs.writeFileSync(file, JSON5.stringify(data, null, spaces));
     }
 }
 exports.FileUtils = FileUtils;

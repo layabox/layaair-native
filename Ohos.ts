@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as JSON5 from 'json5';
 import { AppCommand, NATIVE_STAND_ALONE_URL } from './appCommand';
 import { FileUtils } from './FileUtils';
 export abstract class BaseTools {
@@ -11,30 +10,7 @@ export abstract class BaseTools {
         return true;
     }
 
-    readJSONSync(file: string): any {
-        if (!fs.existsSync(file)) {
-            console.log('错误: 找不到文件 ' + file);
-            return null;
-        }
-        return JSON.parse(fs.readFileSync(file, 'utf-8'));
-    }
-
-    writeJSONSync(file: string, data: any, spaces: number): void {
-        fs.writeFileSync(file, JSON.stringify(data, null, spaces));
-    }
-
-    readJSON5Sync(file: string): any {
-        if (!fs.existsSync(file)) {
-            console.log('错误: 找不到文件 ' + file);
-            return null;
-        }
-        return JSON5.parse(fs.readFileSync(file, 'utf-8'));
-    }
-
-    writeJSON5Sync(file: string, data: any, spaces: number): void {
-        fs.writeFileSync(file, JSON5.stringify(data, null, spaces));
-    }
-
+    
     get standAloneUrl(): string {
         return NATIVE_STAND_ALONE_URL
     }
@@ -94,24 +70,24 @@ export class OhosTools extends BaseTools {
         this.replaceUrl(url, appPath,type);
 
         const cfgFile = path.join(appPath, 'AppScope/app.json5');
-        let configJSON = this.readJSON5Sync(cfgFile);
+        let configJSON = FileUtils.readJSON5Sync(cfgFile);
         configJSON.app.bundleName = package_name;
-        this.writeJSONSync(cfgFile, configJSON, 4);
+        FileUtils.writeJSONSync(cfgFile, configJSON, 4);
 
         const packageJsonPath = path.join(appPath, 'oh-package.json5');
-        const packageJson = this.readJSONSync(packageJsonPath);
+        const packageJson = FileUtils.readJSONSync(packageJsonPath);
         packageJson.name = app_name;
-        this.writeJSONSync(packageJsonPath, packageJson, 4);
+        FileUtils.writeJSONSync(packageJsonPath, packageJson, 4);
 
         const appScopeStringJSONPath = path.join(appPath, 'AppScope/resources/base/element/string.json');
-        const appScopeStringJSON = this.readJSONSync(appScopeStringJSONPath);
+        const appScopeStringJSON = FileUtils.readJSONSync(appScopeStringJSONPath);
         appScopeStringJSON.string.find((item: any) => item.name === 'app_name').value = app_name;
-        this.writeJSONSync(appScopeStringJSONPath, appScopeStringJSON, 2);
+        FileUtils.writeJSONSync(appScopeStringJSONPath, appScopeStringJSON, 2);
 
         const stringJSONPath = path.join(appPath, 'entry/src/main/resources/base/element/string.json');
-        const stringJSON = this.readJSONSync(stringJSONPath);
+        const stringJSON = FileUtils.readJSONSync(stringJSONPath);
         stringJSON.string.find((item: any) => item.name === 'MainAbility_label').value = app_name;
-        this.writeJSONSync(stringJSONPath, stringJSON, 2);
+        FileUtils.writeJSONSync(stringJSONPath, stringJSON, 2);
 
         let nativeJSONPath = AppCommand.getNativeJSONPath(path.join(outputPath, name));
         let nativeJSON = { h5: folder ? folder : ''};

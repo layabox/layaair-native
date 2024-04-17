@@ -18,6 +18,7 @@ const child_process = require("child_process");
 const xmldom = require("xmldom");
 const ProgressBar = require("progress");
 const Ohos_1 = require("./Ohos");
+const FileUtils_1 = require("./FileUtils");
 exports.NATIVE_STAND_ALONE_URL = 'http://stand.alone.version/index.js';
 exports.WKWEBVIEW_STAND_ALONE_URL = 'http://stand.alone.version/index.html';
 exports.VERSION_CONFIG_URL = 'https://www.layabox.com/layanative2.0/layanativeRes/versionconfig.json';
@@ -33,72 +34,6 @@ exports.PLATFORM_ANDROID_ECLIPSE = 'android_eclipse';
 exports.PLATFORM_ANDROID_STUDIO = 'android_studio';
 exports.PLATFORM_OHOS = 'ohos';
 exports.H5_PROJECT_CONFIG_FILE = 'config.json';
-function mkdirsSync(dirname, mode) {
-    if (fs.existsSync(dirname)) {
-        return true;
-    }
-    else {
-        if (mkdirsSync(path.dirname(dirname), mode)) {
-            fs.mkdirSync(dirname, mode);
-            return true;
-        }
-    }
-    return false;
-}
-function copyFileSync(source, target) {
-    var targetFile = target;
-    if (fs.existsSync(target)) {
-        if (fs.lstatSync(target).isDirectory()) {
-            targetFile = path.join(target, path.basename(source));
-        }
-    }
-    fs.writeFileSync(targetFile, fs.readFileSync(source));
-}
-function copyFolderRecursiveSync(source, target) {
-    var files = [];
-    var targetFolder = path.join(target, path.basename(source));
-    if (!fs.existsSync(targetFolder)) {
-        mkdirsSync(targetFolder);
-    }
-    if (fs.lstatSync(source).isDirectory()) {
-        files = fs.readdirSync(source);
-        files.forEach(function (file) {
-            var curSource = path.join(source, file);
-            if (fs.lstatSync(curSource).isDirectory()) {
-                copyFolderRecursiveSync(curSource, targetFolder);
-            }
-            else {
-                copyFileSync(curSource, targetFolder);
-            }
-        });
-    }
-}
-function rmdirSync(dir) {
-    function iterator(url, dirs) {
-        var stat = fs.statSync(url);
-        if (stat.isDirectory()) {
-            dirs.unshift(url);
-            inner(url, dirs);
-        }
-        else if (stat.isFile()) {
-            fs.unlinkSync(url);
-        }
-    }
-    function inner(path, dirs) {
-        var arr = fs.readdirSync(path);
-        for (var i = 0, el; el = arr[i++];) {
-            iterator(path + "/" + el, dirs);
-        }
-    }
-    var dirs = [];
-    try {
-        iterator(dir, dirs);
-        dirs.forEach((v) => { fs.rmdirSync(v); });
-    }
-    catch (e) {
-    }
-}
-;
 class AppCommand {
     constructor() {
         this.tools = new Map();
@@ -157,7 +92,7 @@ class AppCommand {
             }
         }
         console.log("REPLACE rmdir1 " + path.join(appPath, config["res"]["path"]));
-        rmdirSync(path.join(appPath, config["res"]["path"]));
+        FileUtils_1.FileUtils.rmdirSync(path.join(appPath, config["res"]["path"]));
         this.processDcc(config, folder, url, appPath);
         return true;
     }
@@ -180,8 +115,8 @@ class AppCommand {
         let dir = path.join(appPath, config["res"]["path"]);
         console.log('正在删除 ' + dir + ' ...');
         console.log('REPLACE emptydir1 ' + dir);
-        rmdirSync(dir);
-        mkdirsSync(dir);
+        FileUtils_1.FileUtils.rmdirSync(dir);
+        FileUtils_1.FileUtils.mkdirsSync(dir);
         return true;
     }
     excuteCreateApp(folder, sdk, platform, type, url, name, app_name, package_name, outputPath) {
@@ -216,7 +151,7 @@ class AppCommand {
         }
         let srcPath = path.join(sdk, platform);
         console.log('REPLACE copydir1 ', srcPath, path.dirname(appPath));
-        copyFolderRecursiveSync(srcPath, path.dirname(appPath));
+        FileUtils_1.FileUtils.copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         if (type === 2) {
             url = getStandAloneUrl(platform);
         }
@@ -231,13 +166,13 @@ class AppCommand {
         config["res"]["path"] = config["res"]["path"].replace(config["template"]["name"], name);
         console.log('REPLACE  writejson3 ', newConfigPath);
         var p1 = path.dirname(newConfigPath);
-        mkdirsSync(p1);
+        FileUtils_1.FileUtils.mkdirsSync(p1);
         fs.writeFileSync(newConfigPath, JSON.stringify(config));
         let nativeJSONPath = AppCommand.getNativeJSONPath(path.join(outputPath, name));
         let nativeJSON = { h5: folder ? folder : '' };
         console.log('REPLACE writeJSON4', nativeJSONPath);
         p1 = path.dirname(nativeJSONPath);
-        mkdirsSync(p1);
+        FileUtils_1.FileUtils.mkdirsSync(p1);
         fs.writeFileSync(nativeJSONPath, JSON.stringify(nativeJSON));
         return true;
     }
@@ -250,7 +185,7 @@ class AppCommand {
                     var s = me.read(p);
                     s = s.replace(new RegExp(config.localize.src, 'g'), config.localize.des);
                     var p1 = path.dirname(p);
-                    mkdirsSync(p1);
+                    FileUtils_1.FileUtils.mkdirsSync(p1);
                     fs.writeFileSync(p, s);
                 });
             }
@@ -262,7 +197,7 @@ class AppCommand {
                 str = str.replace(new RegExp(config["url"]["src"]), config["url"]["des"].replace("${url}", url));
                 console.log('REPLACE outputfile5', srcPath);
                 var p = path.dirname(srcPath);
-                mkdirsSync(p);
+                FileUtils_1.FileUtils.mkdirsSync(p);
                 fs.writeFileSync(srcPath, str);
             });
         }
@@ -276,7 +211,7 @@ class AppCommand {
                 str = str.replace(new RegExp(config["package"]["name"], "g"), package_name);
                 console.log('REPLACE outfile6', destPath);
                 var p = path.dirname(destPath);
-                mkdirsSync(p);
+                FileUtils_1.FileUtils.mkdirsSync(p);
                 fs.writeFileSync(destPath, str);
             });
         }
@@ -300,7 +235,7 @@ class AppCommand {
             outpath = path.join(config["res"]["path"], outpath);
             outpath = path.join(appPath, outpath);
             if (!fs.existsSync(outpath)) {
-                mkdirsSync(outpath);
+                FileUtils_1.FileUtils.mkdirsSync(outpath);
             }
             console.log('正在执行LayaDcc...');
             gen_dcc.gendcc(res_path, outpath, true, false);
@@ -333,7 +268,7 @@ class AppCommand {
         }
         console.log('REPLACE  outputfile8', file);
         var p1 = path.dirname(file);
-        mkdirsSync(p1);
+        FileUtils_1.FileUtils.mkdirsSync(p1);
         fs.writeFileSync(file, doc.toString());
     }
     processName(config, name, appPath) {
@@ -344,7 +279,7 @@ class AppCommand {
             str = str.replace(new RegExp(config["template"]["name"], "g"), name);
             console.log('REPLACE outputfile9 ' + srcPath);
             var p = path.dirname(srcPath);
-            mkdirsSync(p);
+            FileUtils_1.FileUtils.mkdirsSync(p);
             fs.writeFileSync(srcPath, str);
         });
         config["template"]["rename"].forEach(function (file) {
@@ -382,7 +317,7 @@ class AppCommand {
         }
         if (!fs.existsSync(dataPath)) {
             console.log('REPLACE: mkdir11 ' + dataPath);
-            mkdirsSync(dataPath);
+            FileUtils_1.FileUtils.mkdirsSync(dataPath);
         }
         return dataPath;
     }
