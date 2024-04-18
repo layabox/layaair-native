@@ -3,29 +3,56 @@ import * as path from 'path';
 import * as AppCommand from './appCommand';
 import child_process = require('child_process');
 import xml2js = require('xml2js');
+import { FileUtils } from './FileUtils';
 
 export enum Orientation {
-    Landscape = 0, 
-    Portrait = 1, 
-    ReversePortrait = 2, 
-    ReverseLandscape = 3, 
-    SensorLandscape = 4, 
-    SensorPortrait = 5, 
-    Sensor = 6, 
-  }
+    Landscape = 0,
+    Portrait = 1,
+    ReversePortrait = 2,
+    ReverseLandscape = 3,
+    SensorLandscape = 4,
+    SensorPortrait = 5,
+    Sensor = 6,
+}
 
 export enum AndroidArchitectures {
     ARMV7 = 1,
     ARM64 = 2,
     X86 = 4,
     X86_64 = 8,
-  }
+}
 
-  export enum AndroidArchiveType {
+export enum AndroidArchiveType {
     APK,
     AAB,
-  }
+}
+export enum AndroidIconsType {
+    //Adaptive(API 26) icons
+    adaptive_xxxhdpi_432X432px_background,
+    adaptive_xxxhdpi_432X432px_foreground,
+    adaptive_xxhdpi_324X324px_background,
+    adaptive_xxhdpi_324X324px_foreground,
+    adaptive_xhdpi_216X216px_background,
+    adaptive_xhdpi_216X216px_foreground,
+    adaptive_hdpi_162X162px_background,
+    adaptive_hdpi_162X162px_foreground,
+    adaptive_mdpi_108X108px_background,
+    adaptive_mdpi_108X108px_foreground,
 
+    //Round(API 25) icons
+    round_xxxhdpi_192X192px,
+    round_xxhdpi_144X144px,
+    round_xhdpi_96X96px,
+    round_hdpi_72X72px,
+    round_mdpi_48X48px,
+
+    //Legacy icons
+    legacy_xxxhdpi_192X192px,
+    legacy_xxhdpi_144X144px,
+    legacy_xhdpi_96X96px,
+    legacy_hdpi_72X72px,
+    legacy_mdpi_48X48px,
+}
 export interface OptionsAndroid {
     folder: string;
     sdk: string;
@@ -54,7 +81,8 @@ export interface OptionsAndroid {
     version_name: string;
     architectures: AndroidArchitectures;
     orientation?: Orientation;
-  }
+    icons?: Map<AndroidIconsType, string>;
+}
 
 export class ArchiveAndroidCommand {
     constructor() {
@@ -92,10 +120,10 @@ export class ArchiveAndroidCommand {
         console.log('当前目录是:', currentDirectory);
         return true;
     }
-    private static async writeFileLocalProperties(projectRootPath:string, options: OptionsAndroid) {
+    private static async writeFileLocalProperties(projectRootPath: string, options: OptionsAndroid) {
         let localPropertiesPath = path.join(projectRootPath, "gradle.properties");
         if (fs.existsSync(localPropertiesPath)) {
-            let fileContent = fs.readFileSync(localPropertiesPath,'utf8');
+            let fileContent = fs.readFileSync(localPropertiesPath, 'utf8');
             if (options.release_key_alias) {
                 const regex = /RELEASE_KEY_ALIAS=[^\n]*/g;
                 fileContent = fileContent.replace(regex, `RELEASE_KEY_ALIAS=${options.release_key_alias}`);
@@ -185,14 +213,14 @@ export class ArchiveAndroidCommand {
                 const regex = /ABI_FILETERS=[^\n]*/g;
                 fileContent = fileContent.replace(regex, `ABI_FILETERS=${architectures}`);
             }
-            
+
             if (options.orientation != null) {
 
                 let androidManifestXMLPath = path.join(projectRootPath, "app", "src", "main", "AndroidManifest.xml");
                 const xmlContent = fs.readFileSync(androidManifestXMLPath, 'utf8');
                 const jsObject = await xml2js.parseStringPromise(xmlContent);
 
-            
+
                 if (options.orientation == Orientation.Landscape) {
                     jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'landscape';
                 }
@@ -214,30 +242,51 @@ export class ArchiveAndroidCommand {
                 else if (options.orientation == Orientation.Sensor) {
                     jsObject.manifest.application[0].activity[0].$['android:screenOrientation'] = 'fullSensor';
                 }
-                
+
                 const builder = new xml2js.Builder();
                 const xmlModified = builder.buildObject(jsObject);
                 fs.writeFileSync(androidManifestXMLPath, xmlModified);
 
             }
 
-            
+            {
+                let iconTypeToPath = new Map<AndroidIconsType, string>([
+                    [AndroidIconsType.adaptive_xxxhdpi_432X432px_background, 'app/src/main/res/mipmap-xxxhdpi/ic_launcher_background'],
+                    [AndroidIconsType.adaptive_xxxhdpi_432X432px_foreground, 'app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground'],
+                    [AndroidIconsType.adaptive_xxhdpi_324X324px_background, 'app/src/main/res/mipmap-xxhdpi/ic_launcher_background'],
+                    [AndroidIconsType.adaptive_xxhdpi_324X324px_foreground, 'app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground'],
+                    [AndroidIconsType.adaptive_xhdpi_216X216px_background, 'app/src/main/res/mipmap-xhdpi/ic_launcher_background'],
+                    [AndroidIconsType.adaptive_xhdpi_216X216px_foreground, 'app/src/main/res/mipmap-xhdpi/ic_launcher_foreground'],
+                    [AndroidIconsType.adaptive_hdpi_162X162px_background, 'app/src/main/res/mipmap-hdpi/ic_launcher_background'],
+                    [AndroidIconsType.adaptive_hdpi_162X162px_foreground, 'app/src/main/res/mipmap-hdpi/ic_launcher_foreground'],
+                    [AndroidIconsType.adaptive_mdpi_108X108px_background, 'app/src/main/res/mipmap-mdpi/ic_launcher_background'],
+                    [AndroidIconsType.adaptive_mdpi_108X108px_foreground, 'app/src/main/res/mipmap-mdpi/ic_launcher_foreground'],
+                    [AndroidIconsType.round_xxxhdpi_192X192px, 'app/src/main/res/mipmap-xxxhdpi/ic_launcher_round'],
+                    [AndroidIconsType.round_xxhdpi_144X144px, 'app/src/main/res/mipmap-xxhdpi/ic_launcher_round'],
+                    [AndroidIconsType.round_xhdpi_96X96px, 'app/src/main/res/mipmap-xhdpi/ic_launcher_round'],
+                    [AndroidIconsType.round_hdpi_72X72px, 'app/src/main/res/mipmap-hdpi/ic_launcher_round'],
+                    [AndroidIconsType.round_mdpi_48X48px, 'app/src/main/res/mipmap-mdpi/ic_launcher_round'],
+                    [AndroidIconsType.legacy_xxxhdpi_192X192px, 'app/src/main/res/mipmap-xxxhdpi/ic_launcher'],
+                    [AndroidIconsType.legacy_xxhdpi_144X144px, 'app/src/main/res/mipmap-xxhdpi/ic_launcher'],
+                    [AndroidIconsType.legacy_xhdpi_96X96px, 'app/src/main/res/mipmap-xhdpi/ic_launcher'],
+                    [AndroidIconsType.legacy_hdpi_72X72px, 'app/src/main/res/mipmap-hdpi/ic_launcher'],
+                    [AndroidIconsType.legacy_mdpi_48X48px, 'app/src/main/res/mipmap-mdpi/ic_launcher']
+                ]);
 
+                for (let [iconType, iconPath] of options.icons) {
+                    let desPath = iconTypeToPath.get(iconType);
+                    if (desPath) {
+                        let fullDesPath = path.join(projectRootPath, desPath + path.extname(iconPath));
+                        if (!fs.existsSync(path.dirname(fullDesPath))) {
+                            fs.mkdirSync(path.dirname(fullDesPath));
+                        }
+                        FileUtils.copyFileSync(iconPath, fullDesPath);
+                    }
+                }
+            }
             fs.writeFileSync(localPropertiesPath, fileContent);
         }
     }
-    
-    /*private static writeFileLocalProperties(projectRootPath:string) {
-        let localPropertiesPath = path.join(projectRootPath, "local.properties");
-        if (fs.existsSync(localPropertiesPath)) {
-            let fileContent = fs.readFileSync(localPropertiesPath,'utf8');
-            fileContent = fileContent.replace("http://", "");
-            const regex = new RegExp(`sdk.dir=${originalString}`, 'g');
-
-            const result = input.replace(regex, `sdk.dir=${newString}`);
-
-        }
-    }*/
 }
 
 
