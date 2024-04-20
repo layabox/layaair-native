@@ -28,6 +28,9 @@ class OhosTools extends BaseTools {
         }
         let appPath = appCommand_1.AppCommand.getAppPath(appCommand_1.AppCommand.getNativePath(path.join(outputPath, name)), platform);
         let srcPath = path.join(sdk, platform);
+        if (type === 2) {
+            url = (0, appCommand_1.getStandAloneUrl)(platform);
+        }
         FileUtils_1.FileUtils.copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         if (type > 0) {
             FileUtils_1.FileUtils.processDcc({
@@ -84,5 +87,5 @@ OhosTools.Cache_Path = 'entry/src/main/resources/rawfile/cache';
 OhosTools.Enter_Source_File = 'entry/src/main/ets/MainAbility/MainAbility.ts';
 OhosTools.indexJS = new RegExp("laya\\.ConchNAPI_configSetURL\\(\\s*\\'.*\\'\\s*\\)");
 OhosTools.indexJSReplace = "laya.ConchNAPI_configSetURL('${url}')";
-OhosTools.localizable = new RegExp("laya\\.ConchNAPI_setLocalizable\\(\\s*true\\s*\\)");
+OhosTools.localizable = new RegExp("laya\\.ConchNAPI_setLocalizable\\(\\s*.*\\s*\\)");
 OhosTools.localizableReplace = "laya.ConchNAPI_setLocalizable(${localizable})";

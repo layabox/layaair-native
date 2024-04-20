@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { AppCommand, NATIVE_STAND_ALONE_URL } from './appCommand';
+import { AppCommand, NATIVE_STAND_ALONE_URL, getStandAloneUrl } from './appCommand';
 import { FileUtils } from './FileUtils';
 export abstract class BaseTools {
     abstract excuteCreateApp(folder: string, sdk: string, platform: string, type: number, url: string, name: string, app_name: string, package_name: string, outputPath: string): boolean;
@@ -32,7 +32,7 @@ export class OhosTools extends BaseTools {
 
     static indexJSReplace:string="laya.ConchNAPI_configSetURL('${url}')";
     /**本地化正则表达式 */
-    static localizable:RegExp=new RegExp("laya\\.ConchNAPI_setLocalizable\\(\\s*true\\s*\\)");
+    static localizable:RegExp=new RegExp("laya\\.ConchNAPI_setLocalizable\\(\\s*.*\\s*\\)");
 
     static localizableReplace:string="laya.ConchNAPI_setLocalizable(${localizable})";
 
@@ -65,6 +65,10 @@ export class OhosTools extends BaseTools {
 
         let appPath = AppCommand.getAppPath(AppCommand.getNativePath(path.join(outputPath, name)), platform);
         let srcPath = path.join(sdk, platform);
+
+        if (type === 2) {
+            url = getStandAloneUrl(platform);
+        }
 
         FileUtils.copyFolderRecursiveSync(srcPath, path.dirname(appPath));
         if (type > 0) {
