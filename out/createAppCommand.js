@@ -82,7 +82,7 @@ exports.builder = {
         description: 'SDK本地目录：自定义的SDK目录，可选参数。一般情况下建议使用参数—version。'
     }
 };
-exports.handler = function (argv) {
+var handler = function (argv) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let cmd = new AppCommand.AppCommand();
@@ -182,3 +182,4 @@ exports.handler = function (argv) {
         }
     });
 };
+exports.handler = handler;

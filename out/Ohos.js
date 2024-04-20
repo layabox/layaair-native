@@ -74,13 +74,15 @@ class OhosTools extends BaseTools {
             url = this.standAloneUrl;
         }
         let rs = fs.readFileSync(enterSourceFile, 'utf-8');
-        rs = rs.replace(OhosTools.indexJS, url);
-        rs = rs.replace(OhosTools.localizable, standAlone ? 'true' : 'false');
+        rs = rs.replace(OhosTools.indexJS, OhosTools.indexJSReplace.replace("${url}", url));
+        rs = rs.replace(OhosTools.localizable, OhosTools.localizableReplace.replace("${localizable}", standAlone ? 'true' : 'false'));
         fs.writeFileSync(enterSourceFile, rs);
     }
 }
 exports.OhosTools = OhosTools;
 OhosTools.Cache_Path = 'entry/src/main/resources/rawfile/cache';
 OhosTools.Enter_Source_File = 'entry/src/main/ets/MainAbility/MainAbility.ts';
-OhosTools.indexJS = new RegExp("(?<=laya\\.ConchNAPI_configSetURL\\(\\s*\\')(.*)(?=\\'\\))");
-OhosTools.localizable = new RegExp("(?<=ConchNAPI_setLocalizable\\(\\s*)true(?=\\s*\\))");
+OhosTools.indexJS = new RegExp("laya\\.ConchNAPI_configSetURL\\(\\s*\\'.*\\'\\s*\\)");
+OhosTools.indexJSReplace = "laya.ConchNAPI_configSetURL('${url}')";
+OhosTools.localizable = new RegExp("laya\\.ConchNAPI_setLocalizable\\(\\s*true\\s*\\)");
+OhosTools.localizableReplace = "laya.ConchNAPI_setLocalizable(${localizable})";

@@ -25,9 +25,16 @@ export class OhosTools extends BaseTools {
     /**入口文件 */
     static Enter_Source_File = 'entry/src/main/ets/MainAbility/MainAbility.ts';
     /**入口正则表达式 */
-    static indexJS: RegExp = new RegExp("(?<=laya\\.ConchNAPI_configSetURL\\(\\s*\\')(.*)(?=\\'\\))");
+    //static indexJS: RegExp = new RegExp("(?<=laya\\.ConchNAPI_configSetURL\\(\\s*\\')(.*)(?=\\'\\))");
+
+
+    static indexJS: RegExp = new RegExp("laya\\.ConchNAPI_configSetURL\\(\\s*\\'.*\\'\\s*\\)");
+
+    static indexJSReplace:string="laya.ConchNAPI_configSetURL('${url}')";
     /**本地化正则表达式 */
-    static localizable:RegExp=new RegExp("(?<=ConchNAPI_setLocalizable\\(\\s*)true(?=\\s*\\))");
+    static localizable:RegExp=new RegExp("laya\\.ConchNAPI_setLocalizable\\(\\s*true\\s*\\)");
+
+    static localizableReplace:string="laya.ConchNAPI_setLocalizable(${localizable})";
 
 
     checkURL(url: string): boolean {
@@ -117,8 +124,8 @@ export class OhosTools extends BaseTools {
             url = this.standAloneUrl;
         }
         let rs = fs.readFileSync(enterSourceFile, 'utf-8');
-        rs = rs.replace(OhosTools.indexJS, url);
-        rs =rs.replace(OhosTools.localizable,standAlone?'true':'false');
+        rs = rs.replace(OhosTools.indexJS,OhosTools.indexJSReplace.replace("${url}",url));
+        rs =rs.replace(OhosTools.localizable, OhosTools.localizableReplace.replace("${localizable}", standAlone?'true':'false'));
         fs.writeFileSync(enterSourceFile, rs);
     }
 }
