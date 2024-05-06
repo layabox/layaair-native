@@ -4,16 +4,10 @@ import * as AppCommand from './appCommand';
 import child_process = require('child_process');
 import xml2js = require('xml2js');
 import { FileUtils } from './FileUtils';
+import { Orientation } from './appCommand';
 
-export enum Orientation {
-    Landscape = 0,
-    Portrait = 1,
-    ReversePortrait = 2,
-    ReverseLandscape = 3,
-    SensorLandscape = 4,
-    SensorPortrait = 5,
-    Sensor = 6,
-}
+
+
 
 export enum AndroidArchitectures {
     ARMV7 = 1,
@@ -77,8 +71,8 @@ export interface OptionsAndroid {
     debug_store_password: string;
     min_sdk_version: number;//整数
     target_sdk_version: number;//整数
-    version_code: number;
-    version_name: string;
+    version_code?: number;
+    version_name?: string;
     architectures: AndroidArchitectures;
     orientation?: Orientation;
     icons?: Map<AndroidIconsType, string>;

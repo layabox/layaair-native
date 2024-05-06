@@ -20,6 +20,16 @@ export const H5_PROJECT_CONFIG_FILE: string = 'config.json';
 //export const CODE_DIR_NAME: string = 'Conch';
 //export const THIRD_PARTY_DIR_NAME: string = 'ThirdParty';
 
+export enum Orientation {
+    Landscape = 0,
+    Portrait = 1,
+    ReversePortrait = 2,
+    ReverseLandscape = 3,
+    SensorLandscape = 4,
+    SensorPortrait = 5,
+    Sensor = 6,
+}
+
 function mkdirsSync(dirname:string, mode?:number):boolean{
     if (fs.existsSync(dirname)){
         return true;
@@ -93,6 +103,7 @@ function rmdirSync(dir:string){
 };
 
 export class AppCommand {
+    //static AppCommand: any;
 
     constructor() {
     }
@@ -213,7 +224,7 @@ export class AppCommand {
         }
 
         if (fs.existsSync(appPath)) {
-            console.error("错误： 项目 " + appPath + " 已经存在");
+            console.warn("错误： 项目 " + appPath + " 已经存在");
             return false;
         }
 
