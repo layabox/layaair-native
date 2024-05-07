@@ -1,8 +1,8 @@
 
-import { archiveAndroid, archiveIOS } from ".";
+//import { archiveAndroid, archiveIOS } from ".";
 import { Orientation } from "./appCommand";
 import { AndroidArchitectures, AndroidArchiveType, AndroidIconsType, OptionsAndroid } from "./archiveAndroidCommand";
-import { OptionsIOS } from "./archiveIOSCommand";
+import { ArchiveIOSCommand, OptionsIOS } from "./archiveIOSCommand";
 
 
 
@@ -79,5 +79,5 @@ const optionsIOS:OptionsIOS = {
     version_name: "release-3",      
    };
 //let c = archiveAndroid(options);
-let c = archiveIOS(optionsIOS);
+let c = ArchiveIOSCommand.archive(optionsIOS);
 //Utildds.archiveWindows()
