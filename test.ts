@@ -2,7 +2,7 @@
 //import { archiveAndroid, archiveIOS } from ".";
 import { Orientation } from "./appCommand";
 import { AndroidArchitectures, AndroidArchiveType, AndroidIconsType, OptionsAndroid } from "./archiveAndroidCommand";
-import { ArchiveIOSCommand, OptionsIOS, SigningStyle } from "./archiveIOSCommand";
+import { ArchiveIOSCommand, ExportMethod, OptionsIOS, SigningStyle } from "./archiveIOSCommand";
 
 
 
@@ -72,7 +72,7 @@ const optionsIOS:OptionsIOS = {
    url: "http://10.10.20.77:13999/index.js",
    name: "LayaAir-API-Demo",
    app_name: "myGame",
-   package_name: "com.layabox.game",
+   package_name: "com.layabox.conch6",
    path: '/Users/joychina/lvfulong/out',//"E://out1//c",
    orientation: Orientation.Landscape,
    version_code: 3,
@@ -80,7 +80,8 @@ const optionsIOS:OptionsIOS = {
     team_id: "MH4ZKZTS68", 
     signing_style:SigningStyle.automatic,
     is_debug: false,
-    is_simulator: false,     
+    is_simulator: false,
+    export_method: ExportMethod.enterprise,
    };
 //let c = archiveAndroid(options);
 let c = ArchiveIOSCommand.archive(optionsIOS);

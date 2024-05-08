@@ -10,6 +10,19 @@ export enum SigningStyle {
     manual,
     automatic,
 }
+export enum ExportMethod {
+    app_store_connect, 
+    release_testing,
+    enterprise, 
+    debugging
+}
+
+//根据unity猜测
+export enum ProfileType {   
+    Automatic,
+    Development,
+    Distribution,
+}
 
 export interface OptionsIOS {
     folder: string;
@@ -28,7 +41,10 @@ export interface OptionsIOS {
     team_id: string;
     signing_style: SigningStyle;
     is_debug: boolean;
-    is_simulator:boolean;
+    is_simulator: boolean;
+    export_method: ExportMethod;
+    profile_id?: string;
+    profile_type?: ProfileType;
 }
 
 export class ArchiveIOSCommand {
@@ -118,12 +134,57 @@ export class ArchiveIOSCommand {
             if (options.team_id != null) {
                 exportOptions.teamID = options.team_id;
             }
+
+            if (options.export_method != null) {
+                switch(options.export_method) {
+                    case ExportMethod.app_store_connect:
+                        exportOptions.method = 'app-store-connect';
+                        break;
+                    case ExportMethod.debugging:
+                        exportOptions.method = 'debugging';
+                        break;
+                    case ExportMethod.enterprise:
+                        exportOptions.method = 'enterprise';
+                        break;
+                    case ExportMethod.release_testing:
+                        exportOptions.method = 'release-testing';
+                        break;
+                }
+            }
+
             if (options.signing_style != null) {
                 if (options.signing_style == SigningStyle.automatic) {
                     exportOptions.signingStyle = 'automatic';
                 }
                 else if (options.signing_style == SigningStyle.manual) {
                     exportOptions.signingStyle = 'manual';
+                    //signingCertificate : String
+                    //For manual signing only. Provide a certificate name, SHA-1 hash, or automatic selector to use for signing. Automatic selectors allow Xcode to pick the newest installed certificate of a particular type. 
+                    //The available automatic selectors are "Mac App Distribution", "iOS Distribution", "iOS Developer", "Developer ID Application", "Apple Distribution", "Mac Developer", and "Apple Development". 
+                    //Defaults to an automatic certificate selector matching the current distribution method.
+            
+                    if (options.profile_type != null) {
+                        switch(options.profile_type) {
+                            case ProfileType.Automatic:
+                                break;
+                            case ProfileType.Development:
+                                exportOptions.signingCertificate = 'iOS Developer';
+                                break;
+                            case ProfileType.Distribution:
+                                exportOptions.signingCertificate = 'iOS Distribution';
+                                break;
+                        }
+                    }
+                    //provisioningProfiles : Dictionary
+
+                    //For manual signing only. Specify the provisioning profile to use for each executable in your app. 
+                    //Keys in this dictionary are the bundle identifiers of executables; values are the provisioning profile name or UUID to use.
+
+                    if (options.profile_id && options.package_name) {
+                            exportOptions.provisioningProfiles = { [options.package_name]: options.profile_id };
+
+                        exportOptions.signingStyle = 'manual';
+                    }
                 }
             }
             let exportOptionsPlist = plist.build(exportOptions);
