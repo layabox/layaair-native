@@ -11,10 +11,10 @@ export enum SigningStyle {
     automatic,
 }
 export enum ExportMethod {
-    app_store_connect, 
-    release_testing,
-    enterprise, 
-    debugging
+    app_store_connect, //deprecated app-store
+    release_testing,//deprecated  ad-hoc
+    enterprise,
+    debugging//deprecated development
 }
 
 //根据unity猜测

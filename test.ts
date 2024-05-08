@@ -2,7 +2,7 @@
 //import { archiveAndroid, archiveIOS } from ".";
 import { Orientation } from "./appCommand";
 import { AndroidArchitectures, AndroidArchiveType, AndroidIconsType, OptionsAndroid } from "./archiveAndroidCommand";
-import { ArchiveIOSCommand, ExportMethod, OptionsIOS, SigningStyle } from "./archiveIOSCommand";
+import { ArchiveIOSCommand, ExportMethod, OptionsIOS, ProfileType, SigningStyle } from "./archiveIOSCommand";
 
 
 
@@ -63,7 +63,7 @@ orientation: Orientation.Sensor,
 icons: iconTypeToPath,
 };
 //"C://Users//lvfulong//AppData//Roaming//Laya//layanative3//template//release-v3.1.2",//
-const optionsIOS:OptionsIOS = {
+const optionsIOSAuto:OptionsIOS = {
     folder: '/Users/joychina/MonoProxy',//"E://out1//EngineTest//release//android//resource",
    sdk: '/Users/joychina/Desktop/LayaNative3/publish/nativetools/template',//"F://Ohayoo-native//LayaNative3.0-22//LayaNative3.0//publish//nativetools//template",
    version: null,
@@ -83,6 +83,31 @@ const optionsIOS:OptionsIOS = {
     is_simulator: false,
     export_method: ExportMethod.enterprise,
    };
+
+
+const optionsIOSManual:OptionsIOS = {
+    folder: '/Users/joychina/MonoProxy',//"E://out1//EngineTest//release//android//resource",
+   sdk: '/Users/joychina/Desktop/LayaNative3/publish/nativetools/template',//"F://Ohayoo-native//LayaNative3.0-22//LayaNative3.0//publish//nativetools//template",
+   version: null,
+   platform: "ios",
+   type: 0,
+   url: "http://10.10.20.77:13999/index.js",
+   name: "LayaAir-API-Demo",
+   app_name: "myGame",
+   package_name: "com.layabox.conch",
+   path: '/Users/joychina/lvfulong/out',//"E://out1//c",
+   orientation: Orientation.Landscape,
+   version_code: 3,
+    version_name: "release-3",  
+    team_id: "MH4ZKZTS68", 
+    signing_style:SigningStyle.manual,
+    is_debug: false,
+    is_simulator: false,
+    export_method: ExportMethod.release_testing,
+    profile_id: '73df3867-b431-4f6f-8c71-2c3e401e0a75',
+    profile_type: ProfileType.Distribution,
+   };
 //let c = archiveAndroid(options);
-let c = ArchiveIOSCommand.archive(optionsIOS);
+//let c = ArchiveIOSCommand.archive(optionsIOSAuto);
+let c = ArchiveIOSCommand.archive(optionsIOSManual);
 //Utildds.archiveWindows()
