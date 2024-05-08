@@ -2,7 +2,7 @@
 //import { archiveAndroid, archiveIOS } from ".";
 import { Orientation } from "./appCommand";
 import { AndroidArchitectures, AndroidArchiveType, AndroidIconsType, OptionsAndroid } from "./archiveAndroidCommand";
-import { ArchiveIOSCommand, OptionsIOS } from "./archiveIOSCommand";
+import { ArchiveIOSCommand, OptionsIOS, SigningStyle } from "./archiveIOSCommand";
 
 
 
@@ -64,8 +64,8 @@ icons: iconTypeToPath,
 };
 //"C://Users//lvfulong//AppData//Roaming//Laya//layanative3//template//release-v3.1.2",//
 const optionsIOS:OptionsIOS = {
-    folder: "E://out1//EngineTest//release//android//resource",
-   sdk: "F://Ohayoo-native//LayaNative3.0-22//LayaNative3.0//publish//nativetools//template",
+    folder: '/Users/joychina/MonoProxy',//"E://out1//EngineTest//release//android//resource",
+   sdk: '/Users/joychina/Desktop/LayaNative3/publish/nativetools/template',//"F://Ohayoo-native//LayaNative3.0-22//LayaNative3.0//publish//nativetools//template",
    version: null,
    platform: "ios",
    type: 0,
@@ -73,10 +73,14 @@ const optionsIOS:OptionsIOS = {
    name: "LayaAir-API-Demo",
    app_name: "myGame",
    package_name: "com.layabox.game",
-   path: "E://out1//c",
+   path: '/Users/joychina/lvfulong/out',//"E://out1//c",
    orientation: Orientation.Landscape,
    version_code: 3,
-    version_name: "release-3",      
+    version_name: "release-3",  
+    team_id: "MH4ZKZTS68", 
+    signing_style:SigningStyle.automatic,
+    is_debug: false,
+    is_simulator: false,     
    };
 //let c = archiveAndroid(options);
 let c = ArchiveIOSCommand.archive(optionsIOS);

@@ -5,6 +5,12 @@ import * as plist from 'plist';
 import { Orientation } from './appCommand';
 import child_process = require('child_process');
 
+
+export enum SigningStyle {
+    manual,
+    automatic,
+}
+
 export interface OptionsIOS {
     folder: string;
     sdk: string;
@@ -19,6 +25,10 @@ export interface OptionsIOS {
     orientation?: Orientation;
     version_code?: number;
     version_name?: string;
+    team_id: string;
+    signing_style: SigningStyle;
+    is_debug: boolean;
+    is_simulator:boolean;
 }
 
 export class ArchiveIOSCommand {
@@ -75,7 +85,6 @@ export class ArchiveIOSCommand {
                 fs.writeFileSync(plistPath, plist.build(plistJson));  
             }
         }
-        debugger
         let pbxprojPath = path.join(appPath, options.name, options.name + '.xcodeproj', "project.pbxproj");
         var pbxprojContent = fs.readFileSync(pbxprojPath, 'utf8');
         if (options.version_code != null) {
@@ -84,20 +93,46 @@ export class ArchiveIOSCommand {
         }
         if (options.version_name != null) {
             //build
-            // 使用正则表达式匹配并替换字符串
-            // 此正则表达式匹配 "MARKETING_VERSION = " 后面的任意字符串，直到遇到分号
             pbxprojContent = pbxprojContent.replace(/(MARKETING_VERSION\s*=\s*)[^;]+;/g, `$1${options.version_name};`);
         }
         fs.writeFileSync(pbxprojPath, pbxprojContent);
         
         
+        let archive_export_path = path.join(options.path,'export');
         let archive_path = path.join(options.path,'temp');
         fs.mkdirSync(archive_path);
         if (process.platform === 'darwin') {
+            let projPath = path.join(appPath, options.name, options.name + '.xcodeproj');
+            let configuration = options.is_debug ? "Debug" : "Release";
+            let sdk = options.is_simulator ? "iphonesimulator" : "iphoneos";
 
-            let configuration = "Release";
+            let destination = options.is_simulator ? "generic/platform=iOS Simulator" : "generic/platform=iOS";
+            
+            //工程清理
+            let cmd =`xcodebuild clean -project ${projPath} -scheme ${options.name} -configuration ${configuration}`;
+            child_process.execSync(cmd);
             //通过xcodeproj 方式打包
-            var cmd = " xcodebuild archive -sdk 'iphoneos' -project ${pbxprojPath} -scheme ${options.name} -configuration ${configuration} -archivePath ${archive_path}";
+            cmd =`xcodebuild archive -project ${projPath} -scheme ${options.name} -configuration ${configuration} -archivePath ${archive_path} -sdk ${sdk} -destination ${destination} -allowProvisioningUpdates`;
+            child_process.execSync(cmd);
+            let exportOptions: any = {};
+            if (options.team_id != null) {
+                exportOptions.teamID = options.team_id;
+            }
+            if (options.signing_style != null) {
+                if (options.signing_style == SigningStyle.automatic) {
+                    exportOptions.signingStyle = 'automatic';
+                }
+                else if (options.signing_style == SigningStyle.manual) {
+                    exportOptions.signingStyle = 'manual';
+                }
+            }
+            let exportOptionsPlist = plist.build(exportOptions);
+            let exportOptionsPath = path.join(archive_path, 'exportOptions.plist');
+            fs.writeFileSync(exportOptionsPath, exportOptionsPlist);  
+
+            cmd =`xcodebuild -exportArchive -archivePath '${archive_path}.xcarchive' -exportPath ${archive_export_path} -exportOptionsPlist ${exportOptionsPath}`;
+
+
             child_process.execSync(cmd);
         }
         return true;
