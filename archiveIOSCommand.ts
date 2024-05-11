@@ -4,6 +4,7 @@ import * as AppCommand from './appCommand';
 import * as plist from 'plist';
 import { Orientation } from './appCommand';
 import child_process = require('child_process');
+import { FileUtils } from './FileUtils';
 
 
 export enum SigningStyle {
@@ -23,6 +24,16 @@ export enum ProfileType {
     Development,
     Distribution,
 }
+
+
+export enum IconsMode {   
+    SingleSize,
+    AllSizes,
+}
+
+export interface Icons {
+    iconsMode: IconsMode;
+  }
 
 export interface OptionsIOS {
     folder: string;
@@ -45,10 +56,127 @@ export interface OptionsIOS {
     export_method: ExportMethod;
     profile_id?: string;
     profile_type?: ProfileType;
+    icons_mode:IconsMode;
+    iconsInfo:( {
+        inputImagePath?: string;
+        idiom: string;
+        platform: string;
+        scale: string;
+        size: string;
+    })[]
 }
 
 export class ArchiveIOSCommand {
     constructor() {
+    }
+
+    public static getAllSizesIconsInfo(): ({
+        inputImagePath?: string;
+        idiom: string;
+        platform: string;
+        scale: string;
+        size: string;
+    })[]
+    {
+        let allSizesIconsInfos = [
+            {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "20x20"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "3x",
+                "size" : "20x20"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "29x29"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "3x",
+                "size" : "29x29"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "38x38"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "3x",
+                "size" : "38x38"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "40x40"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "3x",
+                "size" : "40x40"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "60x60"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "3x",
+                "size" : "60x60"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "64x64"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "3x",
+                "size" : "64x64"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "68x68"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "76x76"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "2x",
+                "size" : "83.5x83.5"
+              },
+              {
+                "idiom" : "universal",
+                "platform" : "ios",
+                "scale" : "1x",
+                "size" : "1024x1024"
+              }
+        ];
+        return allSizesIconsInfos;
     }
     public static archive(options: OptionsIOS): boolean {
         let appcmd = new AppCommand.AppCommand();
@@ -113,7 +241,60 @@ export class ArchiveIOSCommand {
         }
         fs.writeFileSync(pbxprojPath, pbxprojContent);
         
-        
+
+
+        //icon
+        let images = [];
+        let appIconPath = path.join(appPath, options.name, options.name, "Assets.xcassets", "AppIcon.appiconset");
+        //先删除老的 否则有影响
+        FileUtils.rmdirSync(appIconPath);
+        FileUtils.mkdirsSync(appIconPath);
+        if  (options.icons_mode  == IconsMode.AllSizes) {
+            for (let info of options.iconsInfo) {
+                FileUtils.copyFileSync(info.inputImagePath, appIconPath);
+                if (info.inputImagePath != null) {
+                    images.push({  filename : path.basename(info.inputImagePath),
+                                    idiom : info.idiom,
+                                    platform : info.platform,
+                                    scale : info.scale,
+                                    size : info.size});
+                }
+                else {
+                    images.push({
+                        idiom : info.idiom,
+                        platform : info.platform,
+                        scale : info.scale,
+                        size : info.size});
+                }
+            }
+        }
+        else if (options.icons_mode  == IconsMode.SingleSize) {
+            const lastItem = options.iconsInfo[options.iconsInfo.length - 1];
+            FileUtils.copyFileSync(lastItem.inputImagePath, appIconPath);
+            if (lastItem.inputImagePath != null) {
+                images.push({  filename : path.basename(lastItem.inputImagePath),
+                                idiom : lastItem.idiom,
+                                platform : lastItem.platform,
+                                scale : lastItem.scale,
+                                size : lastItem.size});
+            }
+            else {
+                images.push({
+                    idiom : lastItem.idiom,
+                    platform : lastItem.platform,
+                    scale : lastItem.scale,
+                    size : lastItem.size});
+            }
+        }
+        const contentsJSON = {
+            images: images,
+            info: {
+                author: 'Xcode',
+                version: 1
+            }
+        };
+        fs.writeFileSync(path.join(appIconPath, "Contents.json"), JSON.stringify(contentsJSON)); 
+
         let archive_export_path = path.join(options.path,'export');
         let archive_path = path.join(options.path,'temp');
         fs.mkdirSync(archive_path);

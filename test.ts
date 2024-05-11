@@ -2,7 +2,7 @@
 //import { archiveAndroid, archiveIOS } from ".";
 import { Orientation } from "./appCommand";
 import { AndroidArchitectures, AndroidArchiveType, AndroidIconsType, OptionsAndroid } from "./archiveAndroidCommand";
-import { ArchiveIOSCommand, ExportMethod, OptionsIOS, ProfileType, SigningStyle } from "./archiveIOSCommand";
+import { ArchiveIOSCommand, ExportMethod, IconsMode, OptionsIOS, ProfileType, SigningStyle } from "./archiveIOSCommand";
 
 
 
@@ -30,7 +30,11 @@ let iconTypeToPath = new Map<AndroidIconsType, string>([
     [AndroidIconsType.legacy_hdpi_72X72px, 'F:/Ohayoo-native/LayaNative3.0-22/LayaNative3.0//publish//nativetools//template//android_studio/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png'],
     [AndroidIconsType.legacy_mdpi_48X48px, 'F:/Ohayoo-native/LayaNative3.0-22/LayaNative3.0//publish//nativetools//template//android_studio/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png']
 ]);
+let  allSizesIconsInfo = ArchiveIOSCommand.getAllSizesIconsInfo();
 
+for (let i = 0; i < allSizesIconsInfo.length; i++) {
+  allSizesIconsInfo[i].inputImagePath = "/Users/joychina/lvfulong/icons/" + i + ".png";
+}
 
 const options:OptionsAndroid = {
  folder: "E://out1//EngineTest//release//android//resource",
@@ -82,9 +86,13 @@ const optionsIOSAuto:OptionsIOS = {
     is_debug: false,
     is_simulator: false,
     export_method: ExportMethod.enterprise,
+    icons_mode:IconsMode.AllSizes,//IconsMode.SingleSize
+    iconsInfo: allSizesIconsInfo,
    };
 
 
+
+//allSizesIconsInfo[allSizesIconsInfo.length - 1].inputImagePath = "/Users/joychina/lvfulong/icons/" + 1 + ".png";
 const optionsIOSManual:OptionsIOS = {
     folder: '/Users/joychina/MonoProxy',//"E://out1//EngineTest//release//android//resource",
    sdk: '/Users/joychina/Desktop/LayaNative3/publish/nativetools/template',//"F://Ohayoo-native//LayaNative3.0-22//LayaNative3.0//publish//nativetools//template",
@@ -106,6 +114,8 @@ const optionsIOSManual:OptionsIOS = {
     export_method: ExportMethod.release_testing,
     profile_id: '73df3867-b431-4f6f-8c71-2c3e401e0a75',
     profile_type: ProfileType.Distribution,
+    icons_mode:IconsMode.SingleSize,//IconsMode.AllSizes,//
+    iconsInfo: allSizesIconsInfo,
    };
 //let c = archiveAndroid(options);
 //let c = ArchiveIOSCommand.archive(optionsIOSAuto);
